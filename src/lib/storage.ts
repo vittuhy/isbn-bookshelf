@@ -85,8 +85,10 @@ function deleteBookLocal(id: string): void {
 
 // Supabase functions
 export async function getAllBooks(): Promise<Book[]> {
+  console.log('getAllBooks called, supabase available:', !!supabase);
   if (supabase) {
     try {
+      console.log('Fetching books from Supabase...');
       const { data, error } = await supabase
         .from('books')
         .select('*')
@@ -94,9 +96,11 @@ export async function getAllBooks(): Promise<Book[]> {
       
       if (error) {
         console.error('Error fetching books from Supabase:', error);
+        console.log('Falling back to localStorage');
         return getAllBooksLocal();
       }
       
+      console.log('Successfully fetched from Supabase:', data?.length || 0, 'books');
       const books = (data || []).map(rowToBook);
       // Sort by title A-Z (case-insensitive, Czech-aware) as fallback
       return books.sort((a, b) => {
@@ -106,10 +110,12 @@ export async function getAllBooks(): Promise<Book[]> {
       });
     } catch (error) {
       console.error('Error fetching books:', error);
+      console.log('Falling back to localStorage due to exception');
       return getAllBooksLocal();
     }
   }
   
+  console.log('Supabase not available, using localStorage');
   return getAllBooksLocal();
 }
 

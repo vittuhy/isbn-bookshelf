@@ -133,10 +133,26 @@ export function Library() {
 
   useEffect(() => {
     const loadBooks = async () => {
-      const allBooks = await getAllBooks();
-      setBooks(allBooks);
-      setFilteredBooks(allBooks);
-      await checkUrlAndOpenBook(allBooks);
+      try {
+        console.log('Loading books...');
+        const allBooks = await getAllBooks();
+        console.log('Loaded books:', allBooks.length, 'books');
+        console.log('Books data:', allBooks);
+        setBooks(allBooks);
+        setFilteredBooks(allBooks);
+        await checkUrlAndOpenBook(allBooks);
+      } catch (error) {
+        console.error('Error loading books:', error);
+        // Try to load from localStorage as fallback
+        try {
+          const localBooks = JSON.parse(localStorage.getItem('books') || '[]');
+          console.log('Loaded from localStorage fallback:', localBooks.length, 'books');
+          setBooks(localBooks);
+          setFilteredBooks(localBooks);
+        } catch (localError) {
+          console.error('Error loading from localStorage:', localError);
+        }
+      }
     };
     loadBooks();
 
