@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import type { Book } from '../types';
 
 interface BookCardProps {
@@ -29,6 +30,14 @@ function getTagColor(tag: string): string {
 }
 
 export function BookCard({ book, onEdit }: BookCardProps) {
+  const [imageError, setImageError] = useState(false);
+  const hasImageUrl = !!(book.imageUrl || book.coverUrl);
+
+  // Reset error state when image URL changes
+  useEffect(() => {
+    setImageError(false);
+  }, [book.imageUrl, book.coverUrl, book.updatedAt]);
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full relative max-w-sm">
       {/* Info icon in top right corner - opens edit dialog */}
@@ -51,7 +60,7 @@ export function BookCard({ book, onEdit }: BookCardProps) {
       <div className="flex flex-1">
         <div className="flex flex-col items-center flex-shrink-0 mt-4 ml-4 relative">
           <div className="w-24 h-36 bg-gray-200 flex items-center justify-center relative">
-            {(book.imageUrl || book.coverUrl) ? (
+            {hasImageUrl ? (
               <img
                 key={`${book.id}-${book.imageUrl || book.coverUrl}-${book.updatedAt}`}
                 src={(() => {
@@ -64,12 +73,18 @@ export function BookCard({ book, onEdit }: BookCardProps) {
                 alt={book.title}
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
+                onLoad={() => {
+                  setImageError(false);
+                }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
+                  setImageError(true);
                 }}
               />
             ) : null}
-            <span className="text-gray-400 text-xs z-10 text-center px-1">Bez obálky</span>
+            {(!hasImageUrl || imageError) && (
+              <span className="text-gray-400 text-xs z-10 text-center px-1">Bez obálky</span>
+            )}
           </div>
         </div>
         <div className="flex-1 pt-4 pb-4 pl-4 pr-8 flex flex-col min-w-0 overflow-hidden">
