@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Book } from '../types';
 
 interface EditBookDrawerProps {
@@ -64,6 +64,31 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
     onClose();
   };
 
+  // Prevent zoom on input focus (mobile browsers)
+  useEffect(() => {
+    const preventZoom = () => {
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+      }
+    };
+
+    const restoreZoom = () => {
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
+      }
+    };
+
+    if (book || !book) {
+      preventZoom();
+    }
+
+    return () => {
+      restoreZoom();
+    };
+  }, [book]);
+
   // Allow rendering even if book is null (for new manual entry)
   if (!book) {
     // Reset form data for new book
@@ -75,8 +100,8 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[95vh] flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style={{ touchAction: 'none' }}>
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[85vh] flex flex-col" style={{ touchAction: 'pan-y' }}>
         <div className="flex justify-between items-center p-4 border-b flex-shrink-0">
             <h2 className="text-xl font-bold">{book && book.id ? 'Detail knihy' : 'Přidat knihu ručně'}</h2>
           <button
@@ -97,6 +122,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <div>
@@ -106,6 +132,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
                   value={formData.authors}
                   onChange={(e) => setFormData({ ...formData, authors: e.target.value })}
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <div>
@@ -115,6 +142,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
                   value={formData.publisher}
                   onChange={(e) => setFormData({ ...formData, publisher: e.target.value })}
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <div>
@@ -124,6 +152,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
                   value={formData.publishedYear}
                   onChange={(e) => setFormData({ ...formData, publishedYear: e.target.value })}
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <div className="col-span-2">
@@ -134,6 +163,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                   placeholder="https://example.com/image.jpg"
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <div className="col-span-2">
@@ -144,6 +174,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
                   onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                   placeholder="např. sci-fi, fantasy, detektivka"
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
               <div className="col-span-2">
@@ -153,6 +184,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={2}
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  style={{ fontSize: '16px' }}
                 />
               </div>
                   {book && book.id && (

@@ -282,6 +282,10 @@ export function Library() {
       setEditingBook(null);
       // Clear URL when closing
       window.history.pushState({}, '', '/');
+      // Reset viewport zoom on mobile after closing dialog
+      if (window.visualViewport) {
+        document.body.style.zoom = '1';
+      }
     } catch (error) {
       console.error('Error saving book:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -327,7 +331,7 @@ export function Library() {
         </div>
 
         {showAddForm && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="bg-white rounded-lg shadow p-6 pb-4 mb-6">
             <h2 className="text-xl font-semibold mb-4">Přidat novou knihu</h2>
             <AddBookForm 
               onAdd={handleAddBook} 
@@ -382,6 +386,10 @@ export function Library() {
               setEditingBook(null);
               // Clear URL when closing
               window.history.pushState({}, '', '/');
+              // Reset viewport zoom on mobile after closing dialog
+              if (window.visualViewport) {
+                document.body.style.zoom = '1';
+              }
             }}
             onSave={handleSaveBook}
             onDelete={handleDeleteBook}

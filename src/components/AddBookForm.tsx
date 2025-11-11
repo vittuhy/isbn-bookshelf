@@ -59,7 +59,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6">
+    <form onSubmit={handleSubmit} className="mb-0">
       <div className="flex gap-2">
         <input
           type="tel"
@@ -85,7 +85,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
         </div>
       )}
       {onManualAdd && (
-        <div className="mt-1 mb-0">
+        <div className="mt-1 mb-0 pb-0">
           <button
             type="button"
             onClick={onManualAdd}
