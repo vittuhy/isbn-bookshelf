@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Book, BookMetadata } from '../types';
 import { getAllBooks, saveBook, deleteBook, searchBooks } from '../lib/storage';
+import { lookupBook } from '../lib/bookLookup';
 import { AddBookForm } from '../components/AddBookForm';
 import { SearchBar } from '../components/SearchBar';
 import { TagFilter } from '../components/TagFilter';
@@ -16,13 +17,106 @@ export function Library() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
+  // Generate UUID v4
+  const generateUUID = (): string => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  };
+
+  // Function to check URL and open/add book if ISBN is present
+  const checkUrlAndOpenBook = async (allBooks: Book[]) => {
+    // Check URL for ISBN parameter or path
+    const urlParams = new URLSearchParams(window.location.search);
+    const isbnFromQuery = urlParams.get('isbn');
+    const pathIsbn = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+    
+    // Check if path looks like an ISBN (10 or 13 digits)
+    const isbnFromPath = /^\d{10,13}$/.test(pathIsbn) ? pathIsbn : null;
+    
+    const isbnToFind = isbnFromQuery || isbnFromPath;
+    
+    if (isbnToFind) {
+      // Find book by ISBN
+      let book = allBooks.find(b => 
+        b.isbn13 === isbnToFind || 
+        b.isbn13.replace(/-/g, '') === isbnToFind.replace(/-/g, '') ||
+        b.isbn10 === isbnToFind ||
+        (b.isbn10 && b.isbn10.replace(/-/g, '') === isbnToFind.replace(/-/g, ''))
+      );
+      
+      if (book) {
+        // Book exists - open detail dialog
+        setEditingBook(book);
+      } else {
+        // Book not found - try to add it
+        try {
+          const metadata = await lookupBook(isbnToFind);
+          if (metadata && metadata.title) {
+            // Create and save the new book
+            const newBook: Book = {
+              id: generateUUID(),
+              ...metadata,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
+            
+            await saveBook(newBook);
+            
+            // Reload books and open the detail dialog
+            const updatedBooks = await getAllBooks();
+            setBooks(updatedBooks);
+            setFilteredBooks(updatedBooks);
+            
+            // Find the newly added book and open it
+            const addedBook = updatedBooks.find(b => 
+              b.isbn13 === newBook.isbn13 || 
+              b.isbn13.replace(/-/g, '') === newBook.isbn13.replace(/-/g, '')
+            );
+            
+            if (addedBook) {
+              setEditingBook(addedBook);
+              // Update URL to use the ISBN path
+              window.history.pushState({}, '', `/${addedBook.isbn13}`);
+            }
+          } else {
+            // Book lookup failed
+            console.warn('Book with ISBN', isbnToFind, 'could not be found or added');
+            setEditingBook(null);
+          }
+        } catch (error) {
+          console.error('Error adding book from URL:', error);
+          setEditingBook(null);
+        }
+      }
+    } else {
+      // No ISBN in URL - close any open dialogs
+      setEditingBook(null);
+    }
+  };
+
   useEffect(() => {
     const loadBooks = async () => {
       const allBooks = await getAllBooks();
       setBooks(allBooks);
       setFilteredBooks(allBooks);
+      await checkUrlAndOpenBook(allBooks);
     };
     loadBooks();
+
+    // Handle browser back/forward navigation
+    const handlePopState = async () => {
+      const currentBooks = await getAllBooks();
+      await checkUrlAndOpenBook(currentBooks);
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
 
   const handleSearch = async (query: string) => {
@@ -57,15 +151,6 @@ export function Library() {
     setFilteredBooks(results);
   };
 
-  // Generate UUID v4
-  const generateUUID = (): string => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  };
-
   const handleAddBook = async (metadata: BookMetadata) => {
     console.log('handleAddBook called with:', metadata);
     try {
@@ -91,6 +176,18 @@ export function Library() {
       
       // Close the form after adding
       setShowAddForm(false);
+      
+      // Find the newly added book and open detail dialog
+      const addedBook = updatedBooks.find(b => 
+        b.isbn13 === newBook.isbn13 || 
+        b.isbn13.replace(/-/g, '') === newBook.isbn13.replace(/-/g, '')
+      );
+      
+      if (addedBook) {
+        setEditingBook(addedBook);
+        // Update URL to include ISBN
+        window.history.pushState({}, '', `/${addedBook.isbn13}`);
+      }
     } catch (error) {
       console.error('Error in handleAddBook:', error);
       alert('Chyba při ukládání knihy: ' + (error instanceof Error ? error.message : String(error)));
@@ -99,6 +196,9 @@ export function Library() {
 
   const handleEditBook = (book: Book) => {
     setEditingBook(book);
+    // Update URL to include ISBN
+    const newUrl = `/${book.isbn13}`;
+    window.history.pushState({}, '', newUrl);
   };
 
   const handleSaveBook = async (book: Book) => {
@@ -221,7 +321,11 @@ export function Library() {
         {editingBook && (
           <EditBookDrawer
             book={editingBook}
-            onClose={() => setEditingBook(null)}
+            onClose={() => {
+              setEditingBook(null);
+              // Clear URL when closing
+              window.history.pushState({}, '', '/');
+            }}
             onSave={handleSaveBook}
           />
         )}

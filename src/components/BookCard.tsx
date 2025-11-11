@@ -36,7 +36,11 @@ export function BookCard({ book, onEdit, onDelete, editMode }: BookCardProps) {
       {/* Info icon in top right corner - opens edit dialog */}
       <div className="absolute top-2 right-2 z-10">
         <button
-          onClick={() => onEdit(book)}
+          onClick={() => {
+            onEdit(book);
+            // Update URL when clicking info icon
+            window.history.pushState({}, '', `/${book.isbn13}`);
+          }}
           className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-600"
           title="Upravit knihu"
         >
@@ -65,7 +69,11 @@ export function BookCard({ book, onEdit, onDelete, editMode }: BookCardProps) {
           {editMode && (
             <div className="flex gap-2 absolute left-0 top-0 bg-white rounded-br-lg shadow-md p-1">
               <button
-                onClick={() => onEdit(book)}
+                onClick={() => {
+                  onEdit(book);
+                  // Update URL when clicking edit button
+                  window.history.pushState({}, '', `/${book.isbn13}`);
+                }}
                 className="p-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
                 title="Upravit"
               >

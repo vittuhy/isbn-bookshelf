@@ -41,7 +41,7 @@ export function EditBookDrawer({ book, onClose, onSave }: EditBookDrawerProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-3xl w-full max-h-[95vh] flex flex-col">
         <div className="flex justify-between items-center p-4 border-b flex-shrink-0">
-          <h2 className="text-xl font-bold">Upravit knihu</h2>
+            <h2 className="text-xl font-bold">Detail knihy</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl"
