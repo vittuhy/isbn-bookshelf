@@ -125,6 +125,7 @@ export async function saveBook(book: Book): Promise<void> {
       
       if (error) {
         console.error('Error saving book to Supabase:', error);
+        console.error('Book data:', row);
         // If image_url column doesn't exist, try without it
         if (error.message?.includes('image_url')) {
           console.warn('image_url column may not exist, saving without it');
@@ -136,10 +137,10 @@ export async function saveBook(book: Book): Promise<void> {
             .upsert([rowWithoutImage], { onConflict: 'id' });
           if (retryError) {
             console.error('Error saving without image_url:', retryError);
-            saveBookLocal(book);
+            throw new Error(`Supabase error: ${retryError.message}`);
           }
         } else {
-          saveBookLocal(book);
+          throw new Error(`Supabase error: ${error.message || 'Unknown error'}`);
         }
       } else {
         console.log('Book saved successfully to Supabase');

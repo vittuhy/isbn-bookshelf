@@ -237,13 +237,27 @@ export function Library() {
       // If book has no ID, it's a new book - generate ID and ISBN
       if (!book.id) {
         book.id = generateUUID();
-        // Generate a placeholder ISBN if not provided
-        if (!book.isbn13 || book.isbn13.startsWith('placeholder-')) {
-          // Create a placeholder ISBN-13 format
-          const timestamp = Date.now().toString().slice(-10);
-          book.isbn13 = '978' + '0'.repeat(9 - timestamp.length) + timestamp;
+        // Generate a placeholder ISBN if not provided (must be valid 13-digit ISBN)
+        if (!book.isbn13 || !book.isbn13.trim()) {
+          // Create a valid placeholder ISBN-13 format: 978 + 9 random digits + check digit
+          // Use timestamp to ensure uniqueness, pad to 9 digits
+          const randomDigits = (Date.now().toString() + Math.random().toString().slice(2)).slice(0, 9).padStart(9, '0');
+          const base = '978' + randomDigits;
+          // Calculate check digit for ISBN-13
+          let sum = 0;
+          for (let i = 0; i < 12; i++) {
+            const digit = parseInt(base[i]);
+            sum += digit * (i % 2 === 0 ? 1 : 3);
+          }
+          const checkDigit = (10 - (sum % 10)) % 10;
+          book.isbn13 = base + checkDigit.toString();
         }
         book.createdAt = new Date().toISOString();
+      }
+      
+      // Ensure isbn13 is not empty
+      if (!book.isbn13 || !book.isbn13.trim()) {
+        throw new Error('ISBN-13 je povinné pole');
       }
       
       await saveBook(book);
@@ -264,7 +278,8 @@ export function Library() {
       }
     } catch (error) {
       console.error('Error saving book:', error);
-      alert('Chyba při ukládání knihy. Zkontrolujte konzoli pro více informací.');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Chyba při ukládání knihy: ${errorMessage}`);
     }
   };
 

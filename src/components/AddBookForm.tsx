@@ -85,7 +85,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
         </div>
       )}
       {onManualAdd && (
-        <div className="mt-2 text-center">
+        <div className="mt-1 mb-0">
           <button
             type="button"
             onClick={onManualAdd}
