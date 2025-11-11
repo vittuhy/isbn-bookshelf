@@ -77,11 +77,47 @@ The app automatically detects if Supabase is configured and uses it when availab
 
 ## ISBN Lookup Sources
 
-The app fetches book metadata from:
-- **Open Library API** (primary)
-- **Google Books API** (fallback)
+The app fetches book metadata from multiple sources in order:
+1. **Open Library API** (primary)
+2. **Google Books API** (fallback)
+3. **OpenAI API** (optional fallback - requires API key)
 
-Both sources are free and don't require API keys.
+### OpenAI API Configuration (Optional)
+
+If you want to use OpenAI as a fallback when books aren't found in Open Library or Google Books:
+
+1. Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Create a `.env` file in the project root:
+   ```
+   VITE_OPENAI_API_KEY=your_openai_api_key_here
+   ```
+3. For production (Netlify), add `VITE_OPENAI_API_KEY` as an environment variable in your Netlify site settings
+
+**Note**: The OpenAI fallback only fetches Title, Authors, and Published Year (no description) to minimize costs. It uses the `gpt-4o` model for cost efficiency.
+
+### Google Custom Search API Configuration (Optional - for OpenAI-only mode)
+
+When using the "Použít pouze OpenAI" checkbox, the app will first try Google Custom Search (if configured) before falling back to OpenAI. This provides better results since Google Search has access to live web data.
+
+**Setup:**
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the **Custom Search API**
+4. Go to **APIs & Services** → **Credentials** → **Create Credentials** → **API Key**
+5. Create a **Custom Search Engine**:
+   - Go to [Google Custom Search](https://programmablesearchengine.google.com/)
+   - Click **Add** to create a new search engine
+   - Set **Sites to search** to `*` (search the entire web)
+   - Get your **Search Engine ID** (CX)
+6. Add to your `.env` file:
+   ```
+   VITE_GOOGLE_SEARCH_API_KEY=your_google_api_key_here
+   VITE_GOOGLE_SEARCH_ENGINE_ID=your_search_engine_id_here
+   ```
+7. For production (Netlify), add both as environment variables
+
+**Note**: Google Custom Search API has a free tier of 100 queries per day. After that, it costs $5 per 1,000 queries.
 
 ## Testing
 

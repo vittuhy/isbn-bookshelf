@@ -16,7 +16,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
     publisher: book?.publisher || '',
     publishedYear: book?.publishedYear?.toString() || '',
     description: book?.description || '',
-    imageUrl: book?.imageUrl || '',
+    imageUrl: book?.imageUrl || book?.coverUrl || '',
     tags: book?.tags?.join(', ') || '',
     isbn13: book?.isbn13 || '',
     isbn10: book?.isbn10 || '',
@@ -57,6 +57,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
         }
       }
       
+      const imageUrlValue = formData.imageUrl.trim() || undefined;
       const newBook: Book = {
         id: '', // Will be generated in Library component
         isbn13: normalizedIsbn13, // Use entered ISBN or empty (will be generated if empty)
@@ -66,7 +67,8 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
         publisher: formData.publisher.trim() || undefined,
         publishedYear: formData.publishedYear ? parseInt(formData.publishedYear) : undefined,
         description: formData.description.trim() || undefined,
-        imageUrl: formData.imageUrl.trim() || undefined,
+        imageUrl: imageUrlValue,
+        coverUrl: imageUrlValue ? undefined : book?.coverUrl, // Preserve coverUrl if imageUrl is not set
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -77,6 +79,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
     }
 
     // Existing book - update it
+    const imageUrlValue = formData.imageUrl.trim() || undefined;
     const updated: Book = {
       ...book,
       title: formData.title.trim(),
@@ -84,7 +87,9 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
       publisher: formData.publisher.trim() || undefined,
       publishedYear: formData.publishedYear ? parseInt(formData.publishedYear) : undefined,
       description: formData.description.trim() || undefined,
-      imageUrl: formData.imageUrl.trim() || undefined,
+      imageUrl: imageUrlValue,
+      // If imageUrl is set, clear coverUrl. Otherwise, preserve existing coverUrl
+      coverUrl: imageUrlValue ? undefined : (book.coverUrl || undefined),
       tags: formData.tags ? formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : undefined,
       updatedAt: new Date().toISOString(),
     };
@@ -100,7 +105,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
       publisher: book?.publisher || '',
       publishedYear: book?.publishedYear?.toString() || '',
       description: book?.description || '',
-      imageUrl: book?.imageUrl || '',
+      imageUrl: book?.imageUrl || book?.coverUrl || '',
       tags: book?.tags?.join(', ') || '',
       isbn13: book?.isbn13 || '',
       isbn10: book?.isbn10 || '',
@@ -271,7 +276,9 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
             {onDelete && book && book.id && (
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   if (confirm('Opravdu chcete smazat tuto knihu?')) {
                     onDelete(book.id);
                     onClose();

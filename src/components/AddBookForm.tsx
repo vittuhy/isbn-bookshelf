@@ -12,6 +12,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
   const [isbn, setIsbn] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [useGoogleSearchOnly, setUseGoogleSearchOnly] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +33,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
         return;
       }
 
-      const metadata = await lookupBook(isbn.trim());
+      const metadata = await lookupBook(isbn.trim(), useGoogleSearchOnly);
       console.log('Lookup result:', metadata);
       
       if (metadata && metadata.title) {
@@ -41,7 +42,9 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
         setError(null);
       } else {
         const trimmedIsbn = isbn.trim();
-        const errorMsg = `Kniha s ISBN ${trimmedIsbn} nebyla nalezena v databázích. Zkontrolujte ISBN a zkuste to znovu.`;
+        const errorMsg = useGoogleSearchOnly
+          ? `Kniha s ISBN ${trimmedIsbn} nebyla nalezena pomocí Google Search.`
+          : `Kniha s ISBN ${trimmedIsbn} nebyla nalezena v databázích. Zkontrolujte ISBN a zkuste to znovu.`;
         console.error('Book not found:', trimmedIsbn, metadata);
         setError(errorMsg);
         // Don't clear the input on error
@@ -67,7 +70,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
           pattern="[0-9-]*"
           value={isbn}
           onChange={(e) => setIsbn(e.target.value)}
-          placeholder="Zadejte ISBN (10 nebo 13 číslic)"
+          placeholder="Zadejte ISBN"
           className="flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           disabled={loading}
         />
@@ -78,6 +81,22 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
         >
           {loading ? 'Vyhledávání...' : 'Přidat knihu'}
         </button>
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="useGoogleSearchOnly"
+          checked={useGoogleSearchOnly}
+          onChange={(e) => setUseGoogleSearchOnly(e.target.checked)}
+          disabled={loading}
+          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+        />
+        <label
+          htmlFor="useGoogleSearchOnly"
+          className="text-sm text-gray-700 cursor-pointer select-none"
+        >
+          Použít pouze Google Search
+        </label>
       </div>
       {error && (
         <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">

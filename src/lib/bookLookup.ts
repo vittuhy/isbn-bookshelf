@@ -3,10 +3,42 @@ import { normalizeISBN, isbn13To10 } from './isbn';
 
 /**
  * Fetch book metadata from multiple sources
+ * @param isbn - ISBN to lookup
+ * @param useGoogleSearchOnly - If true, skip Open Library and Google Books and use Google Search directly
  */
-export async function lookupBook(isbn: string): Promise<BookMetadata | null> {
+export async function lookupBook(isbn: string, useGoogleSearchOnly: boolean = false): Promise<BookMetadata | null> {
   const normalizedISBN = normalizeISBN(isbn);
   const isbn10 = isbn13To10(normalizedISBN);
+
+  // Track which sources were used
+  const sources: string[] = [];
+
+  // If Google Search-only mode, use Google Search directly
+  if (useGoogleSearchOnly) {
+    console.log('Using Google Search-only mode, skipping Open Library and Google Books');
+    
+    const googleSearchResult = await searchGoogleForISBN(normalizedISBN, isbn10);
+    if (googleSearchResult && googleSearchResult.title) {
+      sources.push('Google Search');
+      
+      // Try to find cover image using Google Search
+      if (!googleSearchResult.coverUrl) {
+        const coverUrl = await searchGoogleForCoverImage(normalizedISBN, isbn10, googleSearchResult.title);
+        if (coverUrl) {
+          googleSearchResult.coverUrl = coverUrl;
+        }
+      }
+      
+      const sourceInfo = `\n\n[Zdroj: ${sources.join(', ')}]`;
+      return {
+        isbn13: normalizedISBN,
+        isbn10: isbn10 || undefined,
+        ...googleSearchResult,
+        description: (googleSearchResult.description || '') + sourceInfo,
+      } as BookMetadata;
+    }
+    return null;
+  }
 
   // Try multiple sources in parallel (Open Library and Google Books have CORS support)
   // Note: isbnsearch.org has CORS issues, so we'll use a proxy via Netlify Function if needed
@@ -24,6 +56,9 @@ export async function lookupBook(isbn: string): Promise<BookMetadata | null> {
   // Process Open Library result
   if (openLibraryResult.status === 'fulfilled' && openLibraryResult.value) {
     const data = openLibraryResult.value;
+    if (data.title) {
+      sources.push('Open Library');
+    }
     metadata = {
       ...metadata,
       title: data.title || metadata.title,
@@ -38,6 +73,12 @@ export async function lookupBook(isbn: string): Promise<BookMetadata | null> {
   // Process Google Books result
   if (googleBooksResult.status === 'fulfilled' && googleBooksResult.value) {
     const data = googleBooksResult.value;
+    // Track Google Books as source if it provided any useful data (title, authors, etc.)
+    if (data.title || data.authors || data.publishedYear || data.description) {
+      if (!sources.includes('Google Books')) {
+        sources.push('Google Books');
+      }
+    }
     metadata = {
       ...metadata,
       title: metadata.title || data.title,
@@ -110,11 +151,73 @@ export async function lookupBook(isbn: string): Promise<BookMetadata | null> {
         // Ignore errors in fallback search
       }
     }
+    
+    // Try Google Search for cover image if still no cover
+    if (!metadata.coverUrl && metadata.title) {
+      try {
+        const coverUrl = await searchGoogleForCoverImage(normalizedISBN, isbn10, metadata.title);
+        if (coverUrl) {
+          metadata.coverUrl = coverUrl;
+        }
+      } catch {
+        // Ignore errors in Google Search image lookup
+      }
+    }
+  }
+
+  // If no title found from Open Library or Google Books, try Google Search as fallback (option #3)
+  if (!metadata.title) {
+    console.warn('No title found in metadata, trying Google Search fallback:', metadata);
+    try {
+      const googleSearchResult = await searchGoogleForISBN(normalizedISBN, isbn10);
+      if (googleSearchResult && googleSearchResult.title) {
+        sources.push('Google Search');
+        metadata = {
+          ...metadata,
+          title: googleSearchResult.title,
+          authors: googleSearchResult.authors || metadata.authors,
+          publishedYear: googleSearchResult.publishedYear || metadata.publishedYear,
+        };
+        
+        // Try to find cover image using Google Search if we don't have one
+        if (!metadata.coverUrl && metadata.title) {
+          const coverUrl = await searchGoogleForCoverImage(normalizedISBN, isbn10, metadata.title);
+          if (coverUrl) {
+            metadata.coverUrl = coverUrl;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Google Search fallback error:', error);
+      // Continue to return null if Google Search also fails
+    }
   }
 
   if (!metadata.title) {
-    console.warn('No title found in metadata:', metadata);
+    console.warn('No title found in metadata after all sources:', metadata);
     return null;
+  }
+
+  // If we have a book title but no cover image, try Google Search for the cover
+  // This applies regardless of which source found the book (Open Library, Google Books, or Google Search)
+  if (!metadata.coverUrl && metadata.title) {
+    console.log('Book found but no cover image, trying Google Search for cover...');
+    try {
+      const coverUrl = await searchGoogleForCoverImage(normalizedISBN, isbn10, metadata.title);
+      if (coverUrl) {
+        metadata.coverUrl = coverUrl;
+        console.log('Found cover image via Google Search:', coverUrl);
+      }
+    } catch (error) {
+      console.error('Error searching for cover image via Google Search:', error);
+      // Continue - cover image is optional
+    }
+  }
+
+  // Add source information to description
+  if (sources.length > 0) {
+    const sourceInfo = `\n\n[Zdroj: ${sources.join(', ')}]`;
+    metadata.description = (metadata.description || '') + sourceInfo;
   }
 
   console.log('Final metadata to return:', metadata);
@@ -243,6 +346,202 @@ async function fetchFromOpenLibrary(isbn13: string, isbn10: string): Promise<Par
     return null;
   }
 }
+
+/**
+ * Search Google for ISBN and extract book information
+ * Uses Google Custom Search API
+ */
+async function searchGoogleForISBN(isbn13: string, isbn10: string | null): Promise<Partial<BookMetadata> | null> {
+  const apiKey = import.meta.env.VITE_GOOGLE_SEARCH_API_KEY;
+  const searchEngineId = import.meta.env.VITE_GOOGLE_SEARCH_ENGINE_ID;
+  
+  if (!apiKey || !searchEngineId) {
+    console.warn('Google Search API not configured (VITE_GOOGLE_SEARCH_API_KEY and VITE_GOOGLE_SEARCH_ENGINE_ID)');
+    console.warn('API Key present:', !!apiKey, 'Search Engine ID present:', !!searchEngineId);
+    return null;
+  }
+
+  try {
+    // Try both ISBN-13 and ISBN-10, prioritizing ISBN-13 since that's what user likely entered
+    const isbnsToTry = isbn13 ? [isbn13, isbn10].filter(Boolean) : [isbn10].filter(Boolean);
+    
+    // Try multiple search query variations for each ISBN
+    const searchQueries: string[] = [];
+    for (const isbn of isbnsToTry) {
+      searchQueries.push(
+        `"${isbn}"`,
+        `ISBN ${isbn}`,
+        `ISBN-${isbn}`,
+        `${isbn} book`,
+        `${isbn} kniha`,
+      );
+    }
+    
+    let data: any = null;
+    let successfulQuery = '';
+    
+    // Try each query variation until we get results
+    for (const searchQuery of searchQueries) {
+      const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchQuery)}`;
+      
+      console.log('Searching Google with query:', searchQuery);
+      
+      try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Google Search API error:', response.status, errorText);
+          try {
+            const errorData = JSON.parse(errorText);
+            console.error('Error details:', errorData);
+          } catch {
+            // Not JSON, already logged as text
+          }
+          continue; // Try next query
+        }
+
+        const responseData = await response.json();
+        console.log('Google Search results for query:', searchQuery, 'Results:', responseData.items?.length || 0);
+
+        if (responseData.items && responseData.items.length > 0) {
+          // Found results with this query, use them
+          data = responseData;
+          successfulQuery = searchQuery;
+          break; // Exit the loop and process results
+        }
+      } catch (fetchError) {
+        console.error('Fetch error for query:', searchQuery, fetchError);
+        continue; // Try next query
+      }
+    }
+    
+    if (!data || !data.items || data.items.length === 0) {
+      console.warn('No Google Search results found for ISBN:', isbn13 || isbn10, 'after trying multiple queries');
+      return null;
+    }
+    
+    console.log('Using results from query:', successfulQuery);
+    console.log('Final Google Search results:', data);
+    console.log('Number of results:', data.items.length);
+
+    // Try to extract book information from search results
+    // Look at the first few results
+    for (const item of data.items.slice(0, 3)) {
+      const title = item.title;
+      const snippet = item.snippet;
+      
+      console.log('Processing result:', { title, snippet });
+      
+      // Try to extract title and author from the result
+      // Format is often: "Book Title - Author Name" or "Book Title by Author Name"
+      let extractedTitle = title;
+      let extractedAuthors: string[] | undefined = undefined;
+      
+      // Try to parse author from title or snippet
+      const authorPatterns = [
+        /by\s+([^-]+?)(?:\s*[-–]|$)/i,
+        /-\s*([^-]+?)(?:\s*[-–]|$)/i,
+        /,\s*([^,]+?)(?:\s*[-–]|$)/i,
+      ];
+      
+      for (const pattern of authorPatterns) {
+        const match = (title + ' ' + snippet).match(pattern);
+        if (match && match[1]) {
+          extractedAuthors = [match[1].trim()];
+          extractedTitle = title.replace(pattern, '').trim();
+          break;
+        }
+      }
+
+      // If we found a title, return it
+      if (extractedTitle && extractedTitle.length > 3) {
+        console.log('Extracted book info:', { title: extractedTitle, authors: extractedAuthors });
+        return {
+          title: extractedTitle,
+          authors: extractedAuthors,
+          publishedYear: undefined, // Hard to extract from search results
+        };
+      }
+    }
+
+    console.warn('Could not extract valid title from Google Search results');
+    return null;
+  } catch (error) {
+    console.error('Google Search error:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+    return null;
+  }
+}
+
+/**
+ * Search Google for book cover image
+ * Uses Google Custom Search API with image search
+ */
+async function searchGoogleForCoverImage(isbn13: string, isbn10: string | null, bookTitle?: string): Promise<string | null> {
+  const apiKey = import.meta.env.VITE_GOOGLE_SEARCH_API_KEY;
+  const searchEngineId = import.meta.env.VITE_GOOGLE_SEARCH_ENGINE_ID;
+  
+  if (!apiKey || !searchEngineId) {
+    return null;
+  }
+
+  try {
+    const isbnToSearch = isbn10 || isbn13;
+    // Search for book cover image
+    const searchQuery = bookTitle 
+      ? `${bookTitle} book cover ISBN ${isbnToSearch}`
+      : `ISBN ${isbnToSearch} book cover`;
+    
+    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchQuery)}&searchType=image&num=5`;
+    
+    console.log('Searching Google for cover image:', searchQuery);
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+
+    if (!data.items || data.items.length === 0) {
+      return null;
+    }
+
+    // Try to find a valid cover image from the results
+    for (const item of data.items) {
+      const imageUrl = item.link;
+      if (imageUrl && (imageUrl.includes('cover') || imageUrl.match(/\.(jpg|jpeg|png|webp)$/i))) {
+        // Verify the image exists
+        const isValid = await verifyCoverExists(imageUrl);
+        if (isValid) {
+          console.log('Found cover image via Google Search:', imageUrl);
+          return imageUrl;
+        }
+      }
+    }
+
+    // If no cover-specific image found, try the first image result
+    if (data.items[0]?.link) {
+      const imageUrl = data.items[0].link;
+      const isValid = await verifyCoverExists(imageUrl);
+      if (isValid) {
+        console.log('Found image via Google Search (first result):', imageUrl);
+        return imageUrl;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Google Search image error:', error);
+    return null;
+  }
+}
+
+// OpenAI function removed - using Google Custom Search instead
 
 /**
  * Fetch from Google Books API
