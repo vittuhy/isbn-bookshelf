@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { Book } from '../types';
+import { normalizeISBN, isbn13To10 } from '../lib/isbn';
 
 interface EditBookDrawerProps {
   book: Book | null;
@@ -17,6 +18,8 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
     description: book?.description || '',
     imageUrl: book?.imageUrl || '',
     tags: book?.tags?.join(', ') || '',
+    isbn13: book?.isbn13 || '',
+    isbn10: book?.isbn10 || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -30,9 +33,34 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
 
     // If book has no ID, it's a new book - create it
     if (!book || !book.id) {
+      // Normalize ISBN if provided
+      let normalizedIsbn13 = '';
+      let normalizedIsbn10: string | undefined = undefined;
+      
+      if (formData.isbn13.trim()) {
+        try {
+          normalizedIsbn13 = normalizeISBN(formData.isbn13.trim());
+          // Try to generate ISBN-10 from ISBN-13
+          normalizedIsbn10 = isbn13To10(normalizedIsbn13) || undefined;
+        } catch (error) {
+          alert('Neplatný formát ISBN. Zadejte 10 nebo 13 číslic (s nebo bez pomlček).');
+          return;
+        }
+      } else if (formData.isbn10.trim()) {
+        try {
+          // If only ISBN-10 is provided, convert it to ISBN-13
+          normalizedIsbn13 = normalizeISBN(formData.isbn10.trim());
+          normalizedIsbn10 = formData.isbn10.trim().replace(/\D/g, '');
+        } catch (error) {
+          alert('Neplatný formát ISBN. Zadejte 10 nebo 13 číslic (s nebo bez pomlček).');
+          return;
+        }
+      }
+      
       const newBook: Book = {
         id: '', // Will be generated in Library component
-        isbn13: '', // Will be generated in Library component
+        isbn13: normalizedIsbn13, // Use entered ISBN or empty (will be generated if empty)
+        isbn10: normalizedIsbn10,
         title: formData.title.trim(),
         authors: formData.authors ? formData.authors.split(',').map(a => a.trim()).filter(Boolean) : undefined,
         publisher: formData.publisher.trim() || undefined,
@@ -64,6 +92,21 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
     onClose();
   };
 
+  // Update form data when book changes
+  useEffect(() => {
+    setFormData({
+      title: book?.title || '',
+      authors: book?.authors?.join(', ') || '',
+      publisher: book?.publisher || '',
+      publishedYear: book?.publishedYear?.toString() || '',
+      description: book?.description || '',
+      imageUrl: book?.imageUrl || '',
+      tags: book?.tags?.join(', ') || '',
+      isbn13: book?.isbn13 || '',
+      isbn10: book?.isbn10 || '',
+    });
+  }, [book]);
+
   // Prevent zoom on input focus (mobile browsers)
   useEffect(() => {
     const preventZoom = () => {
@@ -88,16 +131,6 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
       restoreZoom();
     };
   }, [book]);
-
-  // Allow rendering even if book is null (for new manual entry)
-  if (!book) {
-    // Reset form data for new book
-    if (formData.title || formData.authors || formData.publisher) {
-      // Form was already initialized, keep it
-    } else {
-      // This shouldn't happen, but handle it gracefully
-    }
-  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style={{ touchAction: 'none' }}>
@@ -187,23 +220,49 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
                   style={{ fontSize: '16px' }}
                 />
               </div>
-                  {book && book.id && (
-                    <div className="col-span-2 border-t pt-2">
-                      <label className="block text-xs font-medium mb-1">ISBN</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <span className="text-xs text-gray-500">ISBN-13:</span>
-                          <p className="font-mono text-xs mt-0.5">{book.isbn13}</p>
-                        </div>
-                        {book.isbn10 && (
-                          <div>
-                            <span className="text-xs text-gray-500">ISBN-10:</span>
-                            <p className="font-mono text-xs mt-0.5">{book.isbn10}</p>
-                          </div>
-                        )}
-                      </div>
+              {/* ISBN fields - editable for new books, read-only for existing books */}
+              {(!book || !book.id) ? (
+                <div className="col-span-2 border-t pt-2">
+                  <label className="block text-xs font-medium mb-1">ISBN-13</label>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9-]*"
+                    value={formData.isbn13}
+                    onChange={(e) => setFormData({ ...formData, isbn13: e.target.value })}
+                    placeholder="978-80-257-4767-4 nebo 9788025747674"
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style={{ fontSize: '16px' }}
+                  />
+                  <label className="block text-xs font-medium mb-1 mt-2">ISBN-10 (volitelné)</label>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9X-]*"
+                    value={formData.isbn10}
+                    onChange={(e) => setFormData({ ...formData, isbn10: e.target.value })}
+                    placeholder="80-257-4767-4 nebo 8025747674"
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style={{ fontSize: '16px' }}
+                  />
+                </div>
+              ) : (
+                <div className="col-span-2 border-t pt-2">
+                  <label className="block text-xs font-medium mb-1">ISBN</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <span className="text-xs text-gray-500">ISBN-13:</span>
+                      <p className="font-mono text-xs mt-0.5">{book.isbn13}</p>
                     </div>
-                  )}
+                    {book.isbn10 && (
+                      <div>
+                        <span className="text-xs text-gray-500">ISBN-10:</span>
+                        <p className="font-mono text-xs mt-0.5">{book.isbn10}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </form>
         </div>

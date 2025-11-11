@@ -53,7 +53,14 @@ export function BookCard({ book, onEdit }: BookCardProps) {
           <div className="w-24 h-36 bg-gray-200 flex items-center justify-center relative">
             {(book.imageUrl || book.coverUrl) ? (
               <img
-                src={book.imageUrl || book.coverUrl}
+                key={`${book.id}-${book.imageUrl || book.coverUrl}-${book.updatedAt}`}
+                src={(() => {
+                  const imageUrl = book.imageUrl || book.coverUrl || '';
+                  // Add cache-busting parameter based on updatedAt timestamp
+                  const separator = imageUrl.includes('?') ? '&' : '?';
+                  const timestamp = new Date(book.updatedAt).getTime();
+                  return `${imageUrl}${separator}_cb=${timestamp}`;
+                })()}
                 alt={book.title}
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
