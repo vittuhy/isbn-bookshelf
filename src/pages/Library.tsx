@@ -33,10 +33,19 @@ export function Library() {
     const isbnFromQuery = urlParams.get('isbn');
     const pathIsbn = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
     
+    console.log('Checking URL:', {
+      pathname: window.location.pathname,
+      pathIsbn,
+      isbnFromQuery,
+      search: window.location.search
+    });
+    
     // Check if path looks like an ISBN (10 or 13 digits)
     const isbnFromPath = /^\d{10,13}$/.test(pathIsbn) ? pathIsbn : null;
     
     const isbnToFind = isbnFromQuery || isbnFromPath;
+    
+    console.log('ISBN to find:', isbnToFind, 'from path:', isbnFromPath, 'from query:', isbnFromQuery);
     
     if (isbnToFind) {
       // Find book by ISBN
@@ -49,8 +58,10 @@ export function Library() {
       
       if (book) {
         // Book exists - open detail dialog
+        console.log('Book found, opening detail:', book.title);
         setEditingBook(book);
       } else {
+        console.log('Book not found in library, attempting to add:', isbnToFind);
         // Book not found - try to add it
         try {
           const metadata = await lookupBook(isbnToFind);
@@ -77,22 +88,28 @@ export function Library() {
             );
             
             if (addedBook) {
+              console.log('Book added successfully, opening detail:', addedBook.title);
               setEditingBook(addedBook);
               // Update URL to use the ISBN path
               window.history.pushState({}, '', `/${addedBook.isbn13}`);
+            } else {
+              console.error('Book was saved but not found in updated books list');
             }
           } else {
             // Book lookup failed
-            console.warn('Book with ISBN', isbnToFind, 'could not be found or added');
+            console.warn('Book with ISBN', isbnToFind, 'could not be found or added - no metadata returned');
+            alert(`Kniha s ISBN ${isbnToFind} nebyla nalezena v databázích.`);
             setEditingBook(null);
           }
         } catch (error) {
           console.error('Error adding book from URL:', error);
+          alert(`Chyba při přidávání knihy s ISBN ${isbnToFind}: ${error instanceof Error ? error.message : String(error)}`);
           setEditingBook(null);
         }
       }
     } else {
       // No ISBN in URL - close any open dialogs
+      console.log('No ISBN found in URL, closing dialogs');
       setEditingBook(null);
     }
   };
