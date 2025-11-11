@@ -23,7 +23,7 @@ export function AddBookForm({ onAdd }: AddBookFormProps) {
       // Test ISBN normalization first
       try {
         normalizeISBN(isbn.trim());
-      } catch (normError) {
+      } catch {
         const errorMsg = 'Neplatný formát ISBN. Zadejte 10 nebo 13 číslic (s nebo bez pomlček).';
         setError(errorMsg);
         alert(errorMsg);

@@ -1,10 +1,13 @@
 import type { Book } from '../types';
+import type { Database } from './database.types';
 import { supabase } from './supabase';
 
 const STORAGE_KEY = 'isbn_database_books';
 
+type BookRow = Database['public']['Tables']['books']['Row'];
+
 // Helper to convert Supabase row to Book
-function rowToBook(row: any): Book {
+function rowToBook(row: BookRow): Book {
   return {
     id: row.id,
     isbn13: row.isbn13,
@@ -22,8 +25,10 @@ function rowToBook(row: any): Book {
   };
 }
 
+type BookInsert = Database['public']['Tables']['books']['Insert'];
+
 // Helper to convert Book to Supabase row
-function bookToRow(book: Book): any {
+function bookToRow(book: Book): BookInsert {
   return {
     id: book.id,
     isbn13: book.isbn13,

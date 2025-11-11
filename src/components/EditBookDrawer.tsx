@@ -8,17 +8,17 @@ interface EditBookDrawerProps {
 }
 
 export function EditBookDrawer({ book, onClose, onSave }: EditBookDrawerProps) {
-  if (!book) return null;
-
   const [formData, setFormData] = useState({
-    title: book.title,
-    authors: book.authors?.join(', ') || '',
-    publisher: book.publisher || '',
-    publishedYear: book.publishedYear?.toString() || '',
-    description: book.description || '',
-    imageUrl: book.imageUrl || '',
-    tags: book.tags?.join(', ') || '',
+    title: book?.title || '',
+    authors: book?.authors?.join(', ') || '',
+    publisher: book?.publisher || '',
+    publishedYear: book?.publishedYear?.toString() || '',
+    description: book?.description || '',
+    imageUrl: book?.imageUrl || '',
+    tags: book?.tags?.join(', ') || '',
   });
+
+  if (!book) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
