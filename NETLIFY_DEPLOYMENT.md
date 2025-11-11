@@ -17,12 +17,14 @@ The `netlify.toml` file should be configured with:
 1. Go to [Netlify Dashboard](https://app.netlify.com)
 2. Click **"Add new site"** → **"Import an existing project"**
 3. Connect your Git provider (GitHub/GitLab/Bitbucket)
-4. Select the repository: `ISBNDatabase` (or your repo name)
+4. Select the repository: `isbn-bookshelf` (or your repo name)
 5. Configure build settings:
-   - **Base directory**: (leave empty or set to root)
+   - **Base directory**: (leave empty - repository root is the project root)
    - **Build command**: `npm run build`
    - **Publish directory**: `dist`
    - **Node version**: `18` (or latest LTS)
+
+**Note**: Since `ISBNDatabase` is a standalone repository (`isbn-bookshelf.git`), the base directory should be left empty. Netlify will use the repository root as the project root.
 
 ## Step 3: Configure Environment Variables
 
@@ -81,6 +83,8 @@ Ensure `netlify.toml` contains:
   to = "/index.html"
   status = 200
 ```
+
+**Note**: No base directory is needed since the repository root (`isbn-bookshelf`) is the project root.
 
 This ensures React Router (if used) and SPA routing works correctly.
 
