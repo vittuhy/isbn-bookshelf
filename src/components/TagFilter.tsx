@@ -6,18 +6,18 @@ interface TagFilterProps {
   onTagToggle: (tag: string) => void;
 }
 
-// Optimized color palette for tags - high contrast, excellent visibility
+// Modern color palette for tags - sophisticated and contemporary
 const TAG_COLORS = [
-  'bg-blue-600 text-white',
-  'bg-emerald-600 text-white',
-  'bg-purple-600 text-white',
-  'bg-pink-600 text-white',
-  'bg-orange-600 text-white',
-  'bg-indigo-600 text-white',
-  'bg-red-600 text-white',
-  'bg-teal-600 text-white',
-  'bg-rose-600 text-white',
-  'bg-violet-600 text-white',
+  'bg-slate-100 text-slate-700 border border-slate-300',
+  'bg-blue-50 text-blue-700 border border-blue-200',
+  'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  'bg-purple-50 text-purple-700 border border-purple-200',
+  'bg-pink-50 text-pink-700 border border-pink-200',
+  'bg-amber-50 text-amber-700 border border-amber-200',
+  'bg-indigo-50 text-indigo-700 border border-indigo-200',
+  'bg-rose-50 text-rose-700 border border-rose-200',
+  'bg-cyan-50 text-cyan-700 border border-cyan-200',
+  'bg-violet-50 text-violet-700 border border-violet-200',
 ];
 
 function getTagColor(tag: string): string {
@@ -53,10 +53,10 @@ export function TagFilter({ books, selectedTags, onTagToggle }: TagFilterProps) 
           <button
             key={tag}
             onClick={() => onTagToggle(tag)}
-            className={`px-3 py-1.5 rounded text-sm font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
               isSelected
-                ? colorClass + ' ring-2 ring-offset-2 ring-gray-400 shadow-md'
-                : colorClass + ' opacity-70 hover:opacity-100 hover:shadow-md'
+                ? colorClass + ' ring-2 ring-offset-2 ring-slate-400 shadow-md scale-105'
+                : colorClass + ' hover:shadow-md hover:scale-105'
             }`}
           >
             {tag}
