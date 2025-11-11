@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Book, BookMetadata } from '../types';
 import { getAllBooks, saveBook, deleteBook, searchBooks } from '../lib/storage';
 import { lookupBook } from '../lib/bookLookup';
+import { normalizeISBN } from '../lib/isbn';
 import { AddBookForm } from '../components/AddBookForm';
 import { SearchBar } from '../components/SearchBar';
 import { TagFilter } from '../components/TagFilter';
@@ -40,21 +41,32 @@ export function Library() {
       search: window.location.search
     });
     
-    // Check if path looks like an ISBN (10 or 13 digits)
-    const isbnFromPath = /^\d{10,13}$/.test(pathIsbn) ? pathIsbn : null;
+    // Check if path looks like an ISBN (10 or 13 digits, with or without hyphens)
+    // Pattern: digits only OR digits with hyphens (e.g., 978-80-257-4767-4 or 9788025747674)
+    const isbnPathPattern = /^[\d-]{10,17}$/; // Allow digits and hyphens, 10-17 chars (13 digits + up to 4 hyphens)
+    const isbnFromPath = isbnPathPattern.test(pathIsbn) ? pathIsbn : null;
     
     const isbnToFind = isbnFromQuery || isbnFromPath;
     
     console.log('ISBN to find:', isbnToFind, 'from path:', isbnFromPath, 'from query:', isbnFromQuery);
     
     if (isbnToFind) {
-      // Find book by ISBN
-      let book = allBooks.find(b => 
-        b.isbn13 === isbnToFind || 
-        b.isbn13.replace(/-/g, '') === isbnToFind.replace(/-/g, '') ||
-        b.isbn10 === isbnToFind ||
-        (b.isbn10 && b.isbn10.replace(/-/g, '') === isbnToFind.replace(/-/g, ''))
-      );
+      // Normalize the ISBN for comparison (remove hyphens, convert to ISBN-13 if needed)
+      let normalizedIsbnToFind: string;
+      try {
+        normalizedIsbnToFind = normalizeISBN(isbnToFind);
+      } catch (error) {
+        console.error('Invalid ISBN format:', isbnToFind, error);
+        setEditingBook(null);
+        return;
+      }
+      
+      // Find book by ISBN (compare normalized versions)
+      let book = allBooks.find(b => {
+        const bookIsbn13 = b.isbn13.replace(/-/g, '');
+        const bookIsbn10 = b.isbn10?.replace(/-/g, '') || '';
+        return bookIsbn13 === normalizedIsbnToFind || bookIsbn10 === normalizedIsbnToFind;
+      });
       
       if (book) {
         // Book exists - open detail dialog
@@ -62,9 +74,9 @@ export function Library() {
         setEditingBook(book);
       } else {
         console.log('Book not found in library, attempting to add:', isbnToFind);
-        // Book not found - try to add it
+        // Book not found - try to add it (use normalized ISBN for lookup)
         try {
-          const metadata = await lookupBook(isbnToFind);
+          const metadata = await lookupBook(normalizedIsbnToFind);
           if (metadata && metadata.title) {
             // Create and save the new book
             const newBook: Book = {
@@ -81,9 +93,8 @@ export function Library() {
             setBooks(updatedBooks);
             setFilteredBooks(updatedBooks);
             
-            // Find the newly added book and open it
+            // Find the newly added book and open it (compare normalized ISBNs)
             const addedBook = updatedBooks.find(b => 
-              b.isbn13 === newBook.isbn13 || 
               b.isbn13.replace(/-/g, '') === newBook.isbn13.replace(/-/g, '')
             );
             
