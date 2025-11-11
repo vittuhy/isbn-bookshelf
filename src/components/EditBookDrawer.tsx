@@ -39,7 +39,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
         publishedYear: formData.publishedYear ? parseInt(formData.publishedYear) : undefined,
         description: formData.description.trim() || undefined,
         imageUrl: formData.imageUrl.trim() || undefined,
-        tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : undefined,
+        tags: formData.tags ? formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -57,7 +57,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
       publishedYear: formData.publishedYear ? parseInt(formData.publishedYear) : undefined,
       description: formData.description.trim() || undefined,
       imageUrl: formData.imageUrl.trim() || undefined,
-      tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : undefined,
+      tags: formData.tags ? formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : undefined,
       updatedAt: new Date().toISOString(),
     };
     onSave(updated);
@@ -101,8 +101,8 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style={{ touchAction: 'none' }}>
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[85vh] flex flex-col" style={{ touchAction: 'pan-y' }}>
-        <div className="flex justify-between items-center p-4 border-b flex-shrink-0">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col" style={{ touchAction: 'pan-y' }}>
+        <div className="flex justify-between items-center p-3 border-b flex-shrink-0">
             <h2 className="text-xl font-bold">{book && book.id ? 'Detail knihy' : 'Přidat knihu ručně'}</h2>
           <button
             onClick={onClose}
@@ -111,9 +111,9 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
             ×
           </button>
         </div>
-        <div className="p-4 overflow-y-auto flex-1">
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+        <div className="p-3 overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               <div className="col-span-2">
                 <label className="block text-xs font-medium mb-1">Název <span className="text-red-500">*</span></label>
                 <input
@@ -207,7 +207,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
             </div>
           </form>
         </div>
-        <div className="flex gap-2 justify-between p-4 border-t flex-shrink-0">
+        <div className="flex gap-2 justify-between p-3 border-t flex-shrink-0">
           <div>
             {onDelete && book && book.id && (
               <button

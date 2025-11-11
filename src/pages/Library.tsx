@@ -294,16 +294,14 @@ export function Library() {
   };
 
   const handleDeleteBook = async (id: string) => {
-    if (confirm('Opravdu chcete smazat tuto knihu?')) {
-      await deleteBook(id);
-      const updatedBooks = await getAllBooks();
-      setBooks(updatedBooks);
-      
-      if (searchQuery.trim()) {
-        await handleSearch(searchQuery);
-      } else {
-        setFilteredBooks(updatedBooks);
-      }
+    await deleteBook(id);
+    const updatedBooks = await getAllBooks();
+    setBooks(updatedBooks);
+    
+    if (searchQuery.trim()) {
+      await handleSearch(searchQuery);
+    } else {
+      setFilteredBooks(updatedBooks);
     }
   };
 
