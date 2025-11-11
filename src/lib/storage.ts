@@ -29,7 +29,7 @@ type BookInsert = Database['public']['Tables']['books']['Insert'];
 
 // Helper to convert Book to Supabase row
 function bookToRow(book: Book): BookInsert {
-  return {
+  const row: BookInsert = {
     id: book.id,
     isbn13: book.isbn13,
     isbn10: book.isbn10 || null,
@@ -44,6 +44,7 @@ function bookToRow(book: Book): BookInsert {
     created_at: book.createdAt,
     updated_at: book.updatedAt,
   };
+  return row;
 }
 
 // LocalStorage fallback functions
@@ -117,9 +118,10 @@ export async function saveBook(book: Book): Promise<void> {
     try {
       const row = bookToRow(book);
       console.log('Saving book to Supabase:', row); // Debug log
-      const { error } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
         .from('books')
-        .upsert(row, { onConflict: 'id' });
+        .upsert([row], { onConflict: 'id' });
       
       if (error) {
         console.error('Error saving book to Supabase:', error);
@@ -128,9 +130,10 @@ export async function saveBook(book: Book): Promise<void> {
           console.warn('image_url column may not exist, saving without it');
           const rowWithoutImage = { ...row };
           delete rowWithoutImage.image_url;
-          const { error: retryError } = await supabase
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const { error: retryError } = await (supabase as any)
             .from('books')
-            .upsert(rowWithoutImage, { onConflict: 'id' });
+            .upsert([rowWithoutImage], { onConflict: 'id' });
           if (retryError) {
             console.error('Error saving without image_url:', retryError);
             saveBookLocal(book);
