@@ -10,13 +10,13 @@ A lightweight web app to catalog your personal books. Add books by ISBN, search 
 - ✏️ Edit book details
 - 🗑️ Delete books
 - 🖼️ Automatic cover images from Open Library and Google Books
-- 💾 Data stored in browser localStorage (no database needed)
+- 💾 Online storage with Supabase (syncs across devices) or localStorage fallback
 
 ## Tech Stack
 
 - **Frontend**: Vite + React + TypeScript
 - **Styling**: Tailwind CSS
-- **Storage**: Browser localStorage
+- **Storage**: Supabase (PostgreSQL) with localStorage fallback
 - **APIs**: Open Library, Google Books
 - **Deployment**: Netlify
 
@@ -53,11 +53,27 @@ npm run build
 
 ## Data Storage
 
-All book data is stored in your browser's localStorage. This means:
-- Your data stays on your device
-- No account or login required
-- Data persists across browser sessions
-- Maximum ~100 books recommended (localStorage has size limits)
+The app supports **two storage modes**:
+
+### 🚀 Supabase (Recommended - Multi-Device Sync)
+
+✅ **Syncs across all devices** - Access your library from anywhere  
+✅ **Online storage** - Data stored in the cloud  
+✅ **No data loss** - Survives browser clears and device changes  
+✅ **Unlimited books** - No storage limits  
+
+**Setup Required:** See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed instructions.
+
+### 💾 LocalStorage (Fallback)
+
+If Supabase is not configured, the app automatically falls back to browser localStorage:
+
+✅ **Works immediately** - No setup needed  
+✅ **Works after Netlify rebuilds** - Data persists in your browser  
+⚠️ **Device-specific** - Won't sync across devices  
+⚠️ **Limited storage** - ~5-10MB (typically 100-500 books)  
+
+The app automatically detects if Supabase is configured and uses it when available.
 
 ## ISBN Lookup Sources
 

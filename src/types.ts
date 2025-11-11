@@ -8,6 +8,8 @@ export interface Book {
   publishedYear?: number;
   description?: string;
   coverUrl?: string;
+  imageUrl?: string;
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
