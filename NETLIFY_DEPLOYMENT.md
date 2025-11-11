@@ -26,7 +26,16 @@ The `netlify.toml` file should be configured with:
 
 **Note**: Since `ISBNDatabase` is a standalone repository (`isbn-bookshelf.git`), the base directory should be left empty. Netlify will use the repository root as the project root.
 
-## Step 3: Configure Environment Variables
+## Step 3: Configure Secrets Scanning (Important!)
+
+Netlify's secrets scanner will detect Supabase environment variables in the build output. This is **expected and safe** - the Supabase anon key is designed to be public in client-side code.
+
+The `netlify.toml` file is already configured to omit these keys from scanning. If you still see warnings, you can also add this in Netlify Dashboard:
+
+1. Go to **Site settings** → **Build & deploy** → **Environment**
+2. Add environment variable: `SECRETS_SCAN_OMIT_KEYS` = `VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY`
+
+## Step 4: Configure Environment Variables
 
 In Netlify Dashboard → Site settings → Environment variables, add:
 
@@ -37,7 +46,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 
 **Important**: These are public variables (VITE_ prefix), safe to expose in frontend.
 
-## Step 4: Configure Custom Domain
+## Step 5: Configure Custom Domain
 
 ### 4.1 Add Domain to Netlify Site
 
@@ -69,7 +78,7 @@ Netlify automatically provisions SSL certificates via Let's Encrypt:
 - SSL will be automatically enabled
 - Your site will be accessible at `https://knihy.vtuhy.cz`
 
-## Step 5: Verify Build Configuration
+## Step 6: Verify Build Configuration
 
 Ensure `netlify.toml` contains:
 
@@ -88,7 +97,7 @@ Ensure `netlify.toml` contains:
 
 This ensures React Router (if used) and SPA routing works correctly.
 
-## Step 6: Test Deployment
+## Step 7: Test Deployment
 
 1. Push a commit to trigger a build
 2. Check build logs in Netlify Dashboard
