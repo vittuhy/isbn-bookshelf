@@ -16,6 +16,7 @@ export function Library() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
 
   // Generate UUID v4
   const generateUUID = (): string => {
@@ -28,6 +29,12 @@ export function Library() {
 
   // Function to check URL and open/add book if ISBN is present
   const checkUrlAndOpenBook = async (allBooks: Book[]) => {
+    // Don't check URL if we just saved (to prevent reopening dialog)
+    if (justSaved) {
+      setJustSaved(false);
+      return;
+    }
+    
     // Check URL for ISBN parameter or path
     const urlParams = new URLSearchParams(window.location.search);
     const isbnFromQuery = urlParams.get('isbn');
@@ -270,12 +277,11 @@ export function Library() {
         setFilteredBooks(updatedBooks);
       }
       
-      // Keep dialog open with the saved book
-      const savedBook = updatedBooks.find(b => b.id === book.id);
-      if (savedBook) {
-        setEditingBook(savedBook);
-        window.history.pushState({}, '', `/${savedBook.isbn13}`);
-      }
+      // Close the dialog after saving and prevent URL check from reopening it
+      setJustSaved(true);
+      setEditingBook(null);
+      // Clear URL when closing
+      window.history.pushState({}, '', '/');
     } catch (error) {
       console.error('Error saving book:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);

@@ -44,7 +44,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
         updatedAt: new Date().toISOString(),
       };
       onSave(newBook);
-      // Don't close - let Library component handle it
+      onClose();
       return;
     }
 
