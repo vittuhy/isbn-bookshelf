@@ -234,6 +234,18 @@ export function Library() {
 
   const handleSaveBook = async (book: Book) => {
     try {
+      // If book has no ID, it's a new book - generate ID and ISBN
+      if (!book.id) {
+        book.id = generateUUID();
+        // Generate a placeholder ISBN if not provided
+        if (!book.isbn13 || book.isbn13.startsWith('placeholder-')) {
+          // Create a placeholder ISBN-13 format
+          const timestamp = Date.now().toString().slice(-10);
+          book.isbn13 = '978' + '0'.repeat(9 - timestamp.length) + timestamp;
+        }
+        book.createdAt = new Date().toISOString();
+      }
+      
       await saveBook(book);
       const updatedBooks = await getAllBooks();
       setBooks(updatedBooks);
@@ -244,6 +256,12 @@ export function Library() {
         setFilteredBooks(updatedBooks);
       }
       
+      // Keep dialog open with the saved book
+      const savedBook = updatedBooks.find(b => b.id === book.id);
+      if (savedBook) {
+        setEditingBook(savedBook);
+        window.history.pushState({}, '', `/${savedBook.isbn13}`);
+      }
     } catch (error) {
       console.error('Error saving book:', error);
       alert('Chyba při ukládání knihy. Zkontrolujte konzoli pro více informací.');
@@ -290,7 +308,20 @@ export function Library() {
         {showAddForm && (
           <div className="bg-white rounded-lg shadow p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4">Přidat novou knihu</h2>
-            <AddBookForm onAdd={handleAddBook} />
+            <AddBookForm 
+              onAdd={handleAddBook} 
+              onManualAdd={() => {
+                setShowAddForm(false);
+                // Open blank detail dialog for manual entry
+                setEditingBook({
+                  id: '',
+                  isbn13: '',
+                  title: '',
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                } as Book);
+              }}
+            />
           </div>
         )}
 

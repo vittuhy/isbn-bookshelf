@@ -5,9 +5,10 @@ import type { BookMetadata } from '../types';
 
 interface AddBookFormProps {
   onAdd: (metadata: BookMetadata) => void;
+  onManualAdd?: () => void;
 }
 
-export function AddBookForm({ onAdd }: AddBookFormProps) {
+export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
   const [isbn, setIsbn] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,6 +82,17 @@ export function AddBookForm({ onAdd }: AddBookFormProps) {
       {error && (
         <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-700 font-medium">{error}</p>
+        </div>
+      )}
+      {onManualAdd && (
+        <div className="mt-2 text-center">
+          <button
+            type="button"
+            onClick={onManualAdd}
+            className="text-sm text-blue-600 hover:text-blue-800 underline"
+          >
+            Přidat ručně
+          </button>
         </div>
       )}
     </form>
