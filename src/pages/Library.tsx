@@ -16,7 +16,6 @@ export function Library() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [editMode, setEditMode] = useState(false);
 
   // Generate UUID v4
   const generateUUID = (): string => {
@@ -245,10 +244,6 @@ export function Library() {
         setFilteredBooks(updatedBooks);
       }
       
-      // Disable edit mode after saving
-      if (editMode) {
-        setEditMode(false);
-      }
     } catch (error) {
       console.error('Error saving book:', error);
       alert('Chyba při ukládání knihy. Zkontrolujte konzoli pro více informací.');
@@ -275,40 +270,20 @@ export function Library() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-4xl font-bold text-gray-900">Moje knihovna</h1>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setEditMode(!editMode)}
-                className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors shadow-md ${
-                  editMode 
-                    ? 'bg-orange-600 text-white hover:bg-orange-700' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-                title={editMode ? 'Vypnout režim úprav' : 'Zapnout režim úprav'}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </button>
-              <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-md"
-                title="Přidat knihu"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-            </div>
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-md"
+              title="Přidat knihu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
           </div>
           <div className="flex items-center gap-3">
             <p className="text-gray-600">
               {books.length} {books.length === 1 ? 'kniha' : books.length < 5 ? 'knihy' : 'knih'} ve vaší sbírce
             </p>
-            {editMode && (
-              <span className="px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded-full">
-                Režim úprav
-              </span>
-            )}
           </div>
         </div>
 
@@ -337,17 +312,15 @@ export function Library() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredBooks.map((book) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                onEdit={handleEditBook}
-                onDelete={handleDeleteBook}
-                editMode={editMode}
-              />
-            ))}
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredBooks.map((book) => (
+                  <BookCard
+                    key={book.id}
+                    book={book}
+                    onEdit={handleEditBook}
+                  />
+                ))}
+              </div>
         )}
 
         {editingBook && (
@@ -359,6 +332,7 @@ export function Library() {
               window.history.pushState({}, '', '/');
             }}
             onSave={handleSaveBook}
+            onDelete={handleDeleteBook}
           />
         )}
       </div>

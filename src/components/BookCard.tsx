@@ -3,8 +3,6 @@ import type { Book } from '../types';
 interface BookCardProps {
   book: Book;
   onEdit: (book: Book) => void;
-  onDelete: (id: string) => void;
-  editMode: boolean;
 }
 
 // Modern color palette for tags - sophisticated and contemporary
@@ -30,9 +28,9 @@ function getTagColor(tag: string): string {
   return TAG_COLORS[index];
 }
 
-export function BookCard({ book, onEdit, onDelete, editMode }: BookCardProps) {
+export function BookCard({ book, onEdit }: BookCardProps) {
   return (
-    <div className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full relative ${!editMode ? 'max-w-sm' : ''}`}>
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full relative max-w-sm">
       {/* Info icon in top right corner - opens edit dialog */}
       <div className="absolute top-2 right-2 z-10">
         <button
@@ -66,32 +64,6 @@ export function BookCard({ book, onEdit, onDelete, editMode }: BookCardProps) {
             ) : null}
             <span className="text-gray-400 text-xs z-10 text-center px-1">Bez obálky</span>
           </div>
-          {editMode && (
-            <div className="flex gap-2 absolute left-0 top-0 bg-white rounded-br-lg shadow-md p-1">
-              <button
-                onClick={() => {
-                  onEdit(book);
-                  // Update URL when clicking edit button
-                  window.history.pushState({}, '', `/${book.isbn13}`);
-                }}
-                className="p-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                title="Upravit"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </button>
-              <button
-                onClick={() => onDelete(book.id)}
-                className="p-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
-                title="Smazat"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </div>
-          )}
         </div>
         <div className="flex-1 pt-4 pb-4 pl-4 pr-8 flex flex-col min-w-0 overflow-hidden">
           <div className="flex flex-col" style={{ height: '144px' }}>

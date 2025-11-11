@@ -5,9 +5,10 @@ interface EditBookDrawerProps {
   book: Book | null;
   onClose: () => void;
   onSave: (book: Book) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function EditBookDrawer({ book, onClose, onSave }: EditBookDrawerProps) {
+export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDrawerProps) {
   const [formData, setFormData] = useState({
     title: book?.title || '',
     authors: book?.authors?.join(', ') || '',
@@ -136,21 +137,39 @@ export function EditBookDrawer({ book, onClose, onSave }: EditBookDrawerProps) {
             </div>
           </form>
         </div>
-        <div className="flex gap-2 justify-end p-4 border-t flex-shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Zrušit
-          </button>
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Uložit
-          </button>
+        <div className="flex gap-2 justify-between p-4 border-t flex-shrink-0">
+          <div>
+            {onDelete && book && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm('Opravdu chcete smazat tuto knihu?')) {
+                    onDelete(book.id);
+                    onClose();
+                  }
+                }}
+                className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Smazat
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Zrušit
+            </button>
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Uložit
+            </button>
+          </div>
         </div>
       </div>
     </div>
