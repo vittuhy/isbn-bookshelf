@@ -48,28 +48,30 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 
 ## Step 5: Configure Custom Domain
 
-### 4.1 Add Domain to Netlify Site
+### 5.1 Add Domain to Netlify Site
 
 1. Go to **Site settings** → **Domain management**
 2. Click **"Add custom domain"**
 3. Enter: `knihy.vtuhy.cz`
 4. Netlify will verify domain ownership
 
-### 4.2 Configure DNS in Netlify
+### 5.2 Configure DNS in Netlify
 
 Since DNS is managed via Netlify:
 
 1. Go to **Netlify Dashboard** → **Domain management** (top level, not site-specific)
 2. Find your domain `vtuhy.cz`
-3. Add a new DNS record:
-   - **Type**: `CNAME` or `A` (Netlify will suggest)
+3. Netlify will automatically create the DNS record when you add the subdomain
+4. Verify it appears in your DNS records:
+   - **Type**: `CNAME` (for subdomains) or `A` (for apex domains)
    - **Name**: `knihy`
-   - **Value**: Netlify will provide the target (usually your site's Netlify domain or IP)
-   - **TTL**: `3600` (or default)
+   - **Value**: Netlify will automatically set this to your site's target
 
-**OR** if using Netlify's automatic DNS:
-- Netlify may automatically create the DNS record when you add the subdomain
-- Verify it appears in your DNS records
+**Note about CNAME files:**
+- A `CNAME` **file** in your repository is only needed for **GitHub Pages**, not Netlify
+- Netlify doesn't require a CNAME file - domain configuration is done through the dashboard
+- The DNS **record** (CNAME or A) is created automatically by Netlify when DNS is managed by Netlify
+- If you were using external DNS, you'd add the CNAME **DNS record** at your DNS provider, not a file in your repo
 
 ### 4.3 SSL Certificate
 
