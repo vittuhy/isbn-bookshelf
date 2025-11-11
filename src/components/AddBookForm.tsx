@@ -61,17 +61,19 @@ export function AddBookForm({ onAdd }: AddBookFormProps) {
     <form onSubmit={handleSubmit} className="mb-6">
       <div className="flex gap-2">
         <input
-          type="text"
+          type="tel"
+          inputMode="numeric"
+          pattern="[0-9-]*"
           value={isbn}
           onChange={(e) => setIsbn(e.target.value)}
           placeholder="Zadejte ISBN (10 nebo 13 číslic)"
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           disabled={loading}
         />
         <button
           type="submit"
           disabled={loading || !isbn.trim()}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex-shrink-0 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
         >
           {loading ? 'Vyhledávání...' : 'Přidat knihu'}
         </button>

@@ -205,16 +205,20 @@ export function Library() {
       // Close the form after adding
       setShowAddForm(false);
       
-      // Find the newly added book and open detail dialog
+      // Find the newly added book and open detail dialog (compare normalized ISBNs)
+      const newBookIsbn13Normalized = newBook.isbn13.replace(/-/g, '');
       const addedBook = updatedBooks.find(b => 
-        b.isbn13 === newBook.isbn13 || 
-        b.isbn13.replace(/-/g, '') === newBook.isbn13.replace(/-/g, '')
+        b.isbn13.replace(/-/g, '') === newBookIsbn13Normalized
       );
       
       if (addedBook) {
+        console.log('Opening detail for newly added book:', addedBook.title);
         setEditingBook(addedBook);
         // Update URL to include ISBN
         window.history.pushState({}, '', `/${addedBook.isbn13}`);
+      } else {
+        console.error('Added book not found in updated books list. Looking for ISBN:', newBookIsbn13Normalized);
+        console.log('Available books ISBNs:', updatedBooks.map(b => b.isbn13));
       }
     } catch (error) {
       console.error('Error in handleAddBook:', error);
