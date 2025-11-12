@@ -364,18 +364,20 @@ export function Library() {
           </div>
         )}
 
-        <div className="mb-6">
-          <SearchBar onSearch={handleSearch} />
-          <TagFilter 
-            books={books} 
-            selectedTags={selectedTags}
-            onTagToggle={handleTagToggle}
-          />
-        </div>
+        {!showAddForm && (
+          <div className="mb-6">
+            <SearchBar onSearch={handleSearch} />
+            <TagFilter 
+              books={books} 
+              selectedTags={selectedTags}
+              onTagToggle={handleTagToggle}
+            />
+          </div>
+        )}
 
         {filteredBooks.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
+          <div className="text-center py-4 sm:py-12">
+            <p className="text-gray-500 text-base sm:text-lg">
               {searchQuery.trim() 
                 ? `Nebyly nalezeny žádné knihy odpovídající "${searchQuery.trim()}".` 
                 : 'Vaše knihovna je prázdná. Přidejte svou první knihu výše!'}
@@ -397,7 +399,7 @@ export function Library() {
                     updatedAt: new Date().toISOString(),
                   } as Book);
                 }}
-                className="mt-4 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="mt-3 sm:mt-4 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Přidat ručně
               </button>
