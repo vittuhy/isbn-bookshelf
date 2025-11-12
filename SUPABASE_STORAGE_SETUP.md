@@ -47,7 +47,7 @@ true
 
 Click **Review** → **Save policy**
 
-### Policy 3: Allow Public Delete (Optional - for cleanup)
+### Policy 3: Allow Public Delete (REQUIRED - for image cleanup when books are deleted or images are replaced)
 
 Click **New Policy** → **For full customization**
 
@@ -83,7 +83,7 @@ USING (
   bucket_id = 'book-covers'
 );
 
--- Allow public delete (optional)
+-- Allow public delete (REQUIRED for image cleanup)
 CREATE POLICY "Allow public delete"
 ON storage.objects FOR DELETE
 TO public
@@ -106,4 +106,5 @@ USING (
   - Adding file size limits via policies
   - Restricting file types (MIME types) via policies
   - Using signed URLs instead of public bucket
+
 

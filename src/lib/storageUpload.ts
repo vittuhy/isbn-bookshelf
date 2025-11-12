@@ -119,28 +119,69 @@ export async function deleteImageFromSupabase(imageUrl: string): Promise<void> {
   console.log('[deleteImageFromSupabase] Attempting to delete image from storage');
   console.log('[deleteImageFromSupabase] Filename:', fileName);
   console.log('[deleteImageFromSupabase] Full URL:', imageUrl);
+  console.log('[deleteImageFromSupabase] Bucket:', STORAGE_BUCKET);
 
   try {
+    // First, verify the file exists by trying to list it
+    const { data: listData, error: listError } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .list('', {
+        search: fileName
+      });
+    
+    if (listError) {
+      console.warn('[deleteImageFromSupabase] Could not list files to verify existence:', listError);
+    } else {
+      console.log('[deleteImageFromSupabase] Files found matching name:', listData);
+    }
+
+    // Attempt to delete the file
     const { data, error } = await supabase.storage
       .from(STORAGE_BUCKET)
       .remove([fileName]);
 
+    console.log('[deleteImageFromSupabase] Delete response - data:', data);
+    console.log('[deleteImageFromSupabase] Delete response - error:', error);
+
     if (error) {
-      console.error('[deleteImageFromSupabase] Error deleting image from Supabase Storage:', error);
-      console.error('[deleteImageFromSupabase] Error message:', error.message);
+      console.error('[deleteImageFromSupabase] ❌ Error deleting image from Supabase Storage:', error);
+      console.error('[deleteImageFromSupabase] Error details:', JSON.stringify(error, null, 2));
       console.error('[deleteImageFromSupabase] Filename:', fileName);
       console.error('[deleteImageFromSupabase] Full URL:', imageUrl);
+      
+      // Check if it's a permissions error
+      if (error.message?.includes('permission') || error.message?.includes('policy') || error.message?.includes('row-level security')) {
+        console.error('[deleteImageFromSupabase] ⚠️ PERMISSIONS ERROR: Make sure DELETE policy is set up for the book-covers bucket');
+        console.error('[deleteImageFromSupabase] See SUPABASE_STORAGE_SETUP.md for instructions');
+      }
       // Don't throw - we don't want to fail book deletion if image deletion fails
     } else {
-      console.log('[deleteImageFromSupabase] ✅ Successfully deleted image from storage:', fileName);
-      if (data && data.length > 0) {
+      // Supabase remove() returns an array of deleted paths
+      // If the array is empty, the file might not have existed or wasn't deleted
+      // IMPORTANT: An empty array usually means the deletion didn't actually happen
+      // This is often due to missing DELETE permissions/policy
+      if (data && Array.isArray(data) && data.length > 0) {
+        console.log('[deleteImageFromSupabase] ✅ Successfully deleted image from storage:', fileName);
         console.log('[deleteImageFromSupabase] Deleted files:', data);
       } else {
-        console.log('[deleteImageFromSupabase] No files returned in response (might already be deleted)');
+        console.error('[deleteImageFromSupabase] ⚠️ DELETE CALL RETURNED EMPTY RESPONSE - FILE NOT DELETED');
+        console.error('[deleteImageFromSupabase] This usually means:');
+        console.error('[deleteImageFromSupabase] ❌ DELETE policy is missing or not configured correctly');
+        console.error('[deleteImageFromSupabase] Response data:', data);
+        console.error('[deleteImageFromSupabase] ⚠️ ACTION REQUIRED:');
+        console.error('[deleteImageFromSupabase] 1. Go to Supabase Dashboard → Storage → Policies');
+        console.error('[deleteImageFromSupabase] 2. Select the "book-covers" bucket');
+        console.error('[deleteImageFromSupabase] 3. Create a DELETE policy with:');
+        console.error('[deleteImageFromSupabase]    - Policy name: "Allow public delete"');
+        console.error('[deleteImageFromSupabase]    - Operation: DELETE');
+        console.error('[deleteImageFromSupabase]    - Policy definition: true');
+        console.error('[deleteImageFromSupabase]    - USING expression: bucket_id = \'book-covers\'');
+        console.error('[deleteImageFromSupabase] See SUPABASE_STORAGE_SETUP.md for detailed instructions');
       }
     }
   } catch (error) {
-    console.error('[deleteImageFromSupabase] Exception while deleting image:', error);
+    console.error('[deleteImageFromSupabase] ❌ Exception while deleting image:', error);
+    console.error('[deleteImageFromSupabase] Exception details:', JSON.stringify(error, null, 2));
     console.error('[deleteImageFromSupabase] Filename:', fileName);
     console.error('[deleteImageFromSupabase] Full URL:', imageUrl);
     // Don't throw - we don't want to fail book deletion if image deletion fails
