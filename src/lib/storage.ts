@@ -1,6 +1,7 @@
 import type { Book } from '../types';
 import type { Database } from './database.types';
 import { supabase } from './supabase';
+import { deleteImageFromSupabase } from './storageUpload';
 
 const STORAGE_KEY = 'isbn_database_books';
 
@@ -165,6 +166,20 @@ export async function saveBook(book: Book): Promise<void> {
 export async function deleteBook(id: string): Promise<void> {
   if (supabase) {
     try {
+      // First, fetch the book to get its imageUrl before deleting
+      const { data: bookData } = await supabase
+        .from('books')
+        .select('image_url')
+        .eq('id', id)
+        .single();
+
+      // Delete the image from storage if it exists
+      // (We do this even if fetch failed, as long as we have data)
+      if (bookData?.image_url) {
+        await deleteImageFromSupabase(bookData.image_url);
+      }
+
+      // Now delete the book record (even if fetch failed, try to delete)
       const { error } = await supabase
         .from('books')
         .delete()
@@ -177,9 +192,17 @@ export async function deleteBook(id: string): Promise<void> {
       return;
     } catch (error) {
       console.error('Error deleting book:', error);
+      // Try to delete locally as fallback
       deleteBookLocal(id);
       return;
     }
+  }
+  
+  // For local storage, also try to delete the image if it exists
+  const books = getAllBooksLocal();
+  const bookToDelete = books.find(b => b.id === id);
+  if (bookToDelete?.imageUrl) {
+    await deleteImageFromSupabase(bookToDelete.imageUrl);
   }
   
   deleteBookLocal(id);

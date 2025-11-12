@@ -53,3 +53,54 @@ export async function uploadImageToSupabase(
   return urlData.publicUrl;
 }
 
+/**
+ * Extract filename from Supabase storage public URL
+ */
+function extractFileNameFromUrl(url: string): string | null {
+  try {
+    // URL format: https://[project].supabase.co/storage/v1/object/public/book-covers/[filename]
+    const match = url.match(/\/book-covers\/([^/?]+)/);
+    return match ? match[1] : null;
+  } catch (error) {
+    console.error('Error extracting filename from URL:', error);
+    return null;
+  }
+}
+
+/**
+ * Delete image from Supabase Storage
+ */
+export async function deleteImageFromSupabase(imageUrl: string): Promise<void> {
+  if (!supabase) {
+    console.warn('Supabase is not configured, skipping image deletion');
+    return;
+  }
+
+  if (!imageUrl) {
+    return;
+  }
+
+  // Extract filename from URL
+  const fileName = extractFileNameFromUrl(imageUrl);
+  if (!fileName) {
+    console.warn('Could not extract filename from URL:', imageUrl);
+    return;
+  }
+
+  try {
+    const { error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .remove([fileName]);
+
+    if (error) {
+      console.error('Error deleting image from Supabase Storage:', error);
+      // Don't throw - we don't want to fail book deletion if image deletion fails
+    } else {
+      console.log('Successfully deleted image from storage:', fileName);
+    }
+  } catch (error) {
+    console.error('Exception while deleting image:', error);
+    // Don't throw - we don't want to fail book deletion if image deletion fails
+  }
+}
+
