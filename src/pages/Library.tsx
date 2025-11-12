@@ -396,6 +396,7 @@ export function Library() {
         {editingBook && (
           <EditBookDrawer
             book={editingBook}
+            allBooks={books}
             onClose={() => {
               setEditingBook(null);
               // Clear URL when closing

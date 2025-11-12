@@ -39,7 +39,7 @@ export function BookCard({ book, onEdit }: BookCardProps) {
   }, [book.imageUrl, book.coverUrl, book.updatedAt]);
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full relative max-w-sm">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full relative w-full">
       {/* Info icon in top right corner - opens edit dialog */}
       <div className="absolute top-2 right-2 z-10">
         <button
@@ -59,7 +59,7 @@ export function BookCard({ book, onEdit }: BookCardProps) {
 
       <div className="flex flex-1">
         <div className="flex flex-col items-center flex-shrink-0 mt-4 ml-4 relative">
-          <div className="w-24 h-36 bg-gray-200 flex items-center justify-center relative">
+          <div className="w-32 h-36 bg-gray-200 flex items-center justify-center relative">
             {hasImageUrl ? (
               <img
                 key={`${book.id}-${book.imageUrl || book.coverUrl}-${book.updatedAt}`}

@@ -30,11 +30,16 @@ export async function lookupBook(isbn: string, useGoogleSearchOnly: boolean = fa
       }
       
       const sourceInfo = `\n\n[Zdroj: ${sources.join(', ')}]`;
+      let description = (googleSearchResult.description || '') + sourceInfo;
+      // Remove empty lines before [Zdroj: if there's no other text
+      if (description.trim().startsWith('[Zdroj:')) {
+        description = description.trim();
+      }
       return {
         isbn13: normalizedISBN,
         isbn10: isbn10 || undefined,
         ...googleSearchResult,
-        description: (googleSearchResult.description || '') + sourceInfo,
+        description: description,
       } as BookMetadata;
     }
     return null;
@@ -217,7 +222,12 @@ export async function lookupBook(isbn: string, useGoogleSearchOnly: boolean = fa
   // Add source information to description
   if (sources.length > 0) {
     const sourceInfo = `\n\n[Zdroj: ${sources.join(', ')}]`;
-    metadata.description = (metadata.description || '') + sourceInfo;
+    let description = (metadata.description || '') + sourceInfo;
+    // Remove empty lines before [Zdroj: if there's no other text
+    if (description.trim().startsWith('[Zdroj:')) {
+      description = description.trim();
+    }
+    metadata.description = description;
   }
 
   console.log('Final metadata to return:', metadata);

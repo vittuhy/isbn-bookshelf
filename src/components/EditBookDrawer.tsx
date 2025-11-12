@@ -4,12 +4,16 @@ import { normalizeISBN, isbn13To10 } from '../lib/isbn';
 
 interface EditBookDrawerProps {
   book: Book | null;
+  allBooks?: Book[]; // All books to extract available tags
   onClose: () => void;
   onSave: (book: Book) => void;
   onDelete?: (id: string) => void;
 }
 
-export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDrawerProps) {
+export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete }: EditBookDrawerProps) {
+  const [currentTags, setCurrentTags] = useState<string[]>(book?.tags || []);
+  const [tagInput, setTagInput] = useState('');
+
   const [formData, setFormData] = useState({
     title: book?.title || '',
     authors: book?.authors?.join(', ') || '',
@@ -17,10 +21,18 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
     publishedYear: book?.publishedYear?.toString() || '',
     description: book?.description || '',
     imageUrl: book?.imageUrl || book?.coverUrl || '',
-    tags: book?.tags?.join(', ') || '',
     isbn13: book?.isbn13 || '',
     isbn10: book?.isbn10 || '',
   });
+
+  // Extract all unique tags from all books
+  const allAvailableTags = Array.from(
+    new Set(
+      allBooks
+        .flatMap(b => b.tags || [])
+        .filter(Boolean)
+    )
+  ).sort().filter(tag => !currentTags.includes(tag)); // Exclude tags already in current book
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +81,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
         description: formData.description.trim() || undefined,
         imageUrl: imageUrlValue,
         coverUrl: imageUrlValue ? undefined : book?.coverUrl, // Preserve coverUrl if imageUrl is not set
-        tags: formData.tags ? formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : undefined,
+        tags: currentTags.length > 0 ? currentTags : undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -90,7 +102,7 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
       imageUrl: imageUrlValue,
       // If imageUrl is set, clear coverUrl. Otherwise, preserve existing coverUrl
       coverUrl: imageUrlValue ? undefined : (book.coverUrl || undefined),
-      tags: formData.tags ? formData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : undefined,
+      tags: currentTags.length > 0 ? currentTags : undefined,
       updatedAt: new Date().toISOString(),
     };
     onSave(updated);
@@ -106,11 +118,41 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
       publishedYear: book?.publishedYear?.toString() || '',
       description: book?.description || '',
       imageUrl: book?.imageUrl || book?.coverUrl || '',
-      tags: book?.tags?.join(', ') || '',
       isbn13: book?.isbn13 || '',
       isbn10: book?.isbn10 || '',
     });
+    setCurrentTags(book?.tags || []);
+    setTagInput('');
   }, [book]);
+
+  // Handle adding tag from input
+  const handleAddTag = (tag: string) => {
+    const normalizedTag = tag.trim().toLowerCase();
+    if (normalizedTag && !currentTags.includes(normalizedTag)) {
+      setCurrentTags([...currentTags, normalizedTag]);
+      setTagInput('');
+    }
+  };
+
+  // Handle tag input key press
+  const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      if (tagInput.trim()) {
+        handleAddTag(tagInput);
+      }
+    }
+  };
+
+  // Handle removing tag
+  const handleRemoveTag = (tagToRemove: string) => {
+    setCurrentTags(currentTags.filter(tag => tag !== tagToRemove));
+  };
+
+  // Handle clicking on available tag
+  const handleClickAvailableTag = (tag: string) => {
+    handleAddTag(tag);
+  };
 
   // Prevent zoom on input focus (mobile browsers)
   useEffect(() => {
@@ -205,15 +247,55 @@ export function EditBookDrawer({ book, onClose, onSave, onDelete }: EditBookDraw
                 />
               </div>
               <div className="col-span-2">
-                <label className="block text-xs font-medium mb-1">Tagy (oddělené čárkou)</label>
-                <input
-                  type="text"
-                  value={formData.tags}
-                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  placeholder="např. sci-fi, fantasy, detektivka"
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  style={{ fontSize: '16px' }}
-                />
+                <label className="block text-xs font-medium mb-1">Tagy</label>
+                {/* Combined input with tags inside and available tags below */}
+                <div className="border border-gray-300 rounded focus-within:ring-2 focus-within:ring-blue-500">
+                  {/* Tags and input field in the same container */}
+                  <div className="flex flex-wrap gap-1.5 items-center p-2 min-h-[40px]">
+                    {currentTags.map(tag => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-100 text-blue-800 rounded-md text-xs font-medium flex-shrink-0"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTag(tag)}
+                          className="hover:text-blue-900 focus:outline-none"
+                          aria-label={`Odstranit tag ${tag}`}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={handleTagInputKeyDown}
+                      placeholder={currentTags.length === 0 ? "Zadejte tag nebo klikněte na dostupný tag" : ""}
+                      className="flex-1 min-w-[120px] px-1 py-0.5 text-sm border-0 focus:outline-none"
+                      style={{ fontSize: '16px' }}
+                    />
+                  </div>
+                  {/* Available tags integrated below input */}
+                  {allAvailableTags.length > 0 && (
+                    <div className="px-2 pb-2 pt-1 border-t border-gray-200">
+                      <div className="flex flex-wrap gap-1.5">
+                        {allAvailableTags.map(tag => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => handleClickAvailableTag(tag)}
+                            className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                          >
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="col-span-2">
                 <label className="block text-xs font-medium mb-1">Popis</label>
