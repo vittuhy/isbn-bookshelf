@@ -14,12 +14,15 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
 
   useEffect(() => {
     let isMounted = true;
-    const codeReader = new BrowserMultiFormatReader();
-    codeReaderRef.current = codeReader;
+    let codeReader: BrowserMultiFormatReader | null = null;
+    let stream: MediaStream | null = null;
 
     const startScanning = async () => {
       try {
-        if (!isMounted) return;
+        if (!isMounted || !videoRef.current) return;
+        
+        codeReader = new BrowserMultiFormatReader();
+        codeReaderRef.current = codeReader;
         setScanning(true);
         setError(null);
 
@@ -60,7 +63,9 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
                 // ISBN-13: 13 digits, ISBN-10: 10 digits (may end with X)
                 if (text && (/^\d{13}$/.test(text) || /^\d{9}[0-9X]$/.test(text) || /^\d{10}$/.test(text))) {
                   // Stop scanning
-                  codeReader.reset();
+                  if (codeReader) {
+                    codeReader.reset();
+                  }
                   setScanning(false);
                   // Return the scanned ISBN
                   onScan(text);
@@ -87,15 +92,20 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
     // Cleanup on unmount
     return () => {
       isMounted = false;
-      if (codeReaderRef.current) {
+      if (codeReader) {
         try {
-          codeReaderRef.current.reset();
+          codeReader.reset();
         } catch (e) {
           // Ignore errors during cleanup
         }
       }
+      // Stop all tracks from the stream
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
     };
-  }, [onScan, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run once on mount
 
   const handleClose = () => {
     if (codeReaderRef.current) {

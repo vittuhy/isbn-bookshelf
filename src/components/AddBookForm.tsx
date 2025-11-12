@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { lookupBook } from '../lib/bookLookup';
 import { normalizeISBN } from '../lib/isbn';
 import type { BookMetadata } from '../types';
@@ -63,12 +63,16 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
     }
   };
 
-  const handleBarcodeScan = (scannedIsbn: string) => {
+  const handleBarcodeScan = useCallback((scannedIsbn: string) => {
     // Clean the scanned ISBN (remove any non-digit characters except X)
     const cleaned = scannedIsbn.replace(/[^\dX]/g, '');
     setIsbn(cleaned);
     setError(null);
-  };
+  }, []);
+
+  const handleCloseScanner = useCallback(() => {
+    setShowScanner(false);
+  }, []);
 
   return (
     <>
@@ -142,7 +146,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
     {showScanner && (
       <BarcodeScanner
         onScan={handleBarcodeScan}
-        onClose={() => setShowScanner(false)}
+        onClose={handleCloseScanner}
       />
     )}
     </>
