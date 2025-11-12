@@ -58,13 +58,33 @@ export async function uploadImageToSupabase(
  */
 function extractFileNameFromUrl(url: string): string | null {
   try {
+    if (!url || typeof url !== 'string') {
+      console.warn('Invalid URL provided to extractFileNameFromUrl:', url);
+      return null;
+    }
+    
     // URL format: https://[project].supabase.co/storage/v1/object/public/book-covers/[filename]
+    // Also handle URLs with query parameters
     const match = url.match(/\/book-covers\/([^/?]+)/);
-    return match ? match[1] : null;
+    if (match && match[1]) {
+      // Decode URL-encoded filename if needed
+      return decodeURIComponent(match[1]);
+    }
+    
+    console.warn('Could not extract filename from URL:', url);
+    return null;
   } catch (error) {
-    console.error('Error extracting filename from URL:', error);
+    console.error('Error extracting filename from URL:', error, url);
     return null;
   }
+}
+
+/**
+ * Check if URL is from our Supabase storage bucket
+ */
+export function isSupabaseStorageUrl(url: string | undefined | null): boolean {
+  if (!url) return false;
+  return url.includes('/book-covers/') && url.includes('supabase.co');
 }
 
 /**
@@ -80,6 +100,12 @@ export async function deleteImageFromSupabase(imageUrl: string): Promise<void> {
     return;
   }
 
+  // Only delete if it's from our storage bucket
+  if (!isSupabaseStorageUrl(imageUrl)) {
+    console.log('Skipping deletion - URL is not from our storage bucket:', imageUrl);
+    return;
+  }
+
   // Extract filename from URL
   const fileName = extractFileNameFromUrl(imageUrl);
   if (!fileName) {
@@ -87,19 +113,28 @@ export async function deleteImageFromSupabase(imageUrl: string): Promise<void> {
     return;
   }
 
+  console.log('Attempting to delete image from storage:', fileName, 'from URL:', imageUrl);
+
   try {
-    const { error } = await supabase.storage
+    const { data, error } = await supabase.storage
       .from(STORAGE_BUCKET)
       .remove([fileName]);
 
     if (error) {
       console.error('Error deleting image from Supabase Storage:', error);
+      console.error('Filename:', fileName);
+      console.error('Full URL:', imageUrl);
       // Don't throw - we don't want to fail book deletion if image deletion fails
     } else {
       console.log('Successfully deleted image from storage:', fileName);
+      if (data) {
+        console.log('Deleted files:', data);
+      }
     }
   } catch (error) {
     console.error('Exception while deleting image:', error);
+    console.error('Filename:', fileName);
+    console.error('Full URL:', imageUrl);
     // Don't throw - we don't want to fail book deletion if image deletion fails
   }
 }

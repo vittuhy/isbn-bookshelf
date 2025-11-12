@@ -1,7 +1,7 @@
 import type { Book } from '../types';
 import type { Database } from './database.types';
 import { supabase } from './supabase';
-import { deleteImageFromSupabase } from './storageUpload';
+import { deleteImageFromSupabase, isSupabaseStorageUrl } from './storageUpload';
 
 const STORAGE_KEY = 'isbn_database_books';
 
@@ -123,6 +123,25 @@ export async function getAllBooks(): Promise<Book[]> {
 export async function saveBook(book: Book): Promise<void> {
   if (supabase) {
     try {
+      // If this is an existing book (has an ID), check if imageUrl has changed
+      if (book.id) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: existingBook } = await (supabase as any)
+          .from('books')
+          .select('image_url')
+          .eq('id', book.id)
+          .single();
+
+        // If the book exists and has an old imageUrl that's different from the new one
+        if (existingBook?.image_url && 
+            existingBook.image_url !== book.imageUrl &&
+            isSupabaseStorageUrl(existingBook.image_url)) {
+          // Delete the old image from storage
+          console.log('Image URL changed, deleting old image:', existingBook.image_url);
+          await deleteImageFromSupabase(existingBook.image_url);
+        }
+      }
+
       const row = bookToRow(book);
       console.log('Saving book to Supabase:', row); // Debug log
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -160,6 +179,18 @@ export async function saveBook(book: Book): Promise<void> {
     }
   }
   
+  // For local storage, also check if imageUrl changed
+  if (book.id) {
+    const books = getAllBooksLocal();
+    const existingBook = books.find(b => b.id === book.id);
+    if (existingBook?.imageUrl && 
+        existingBook.imageUrl !== book.imageUrl &&
+        isSupabaseStorageUrl(existingBook.imageUrl)) {
+      console.log('Image URL changed in local storage, deleting old image:', existingBook.imageUrl);
+      await deleteImageFromSupabase(existingBook.imageUrl);
+    }
+  }
+  
   saveBookLocal(book);
 }
 
@@ -174,10 +205,12 @@ export async function deleteBook(id: string): Promise<void> {
         .eq('id', id)
         .single();
 
-      // Delete the image from storage if it exists
-      // (We do this even if fetch failed, as long as we have data)
-      if (bookData?.image_url) {
+      // Delete the image from storage if it exists and is from our storage bucket
+      if (bookData?.image_url && isSupabaseStorageUrl(bookData.image_url)) {
+        console.log('Deleting book image from storage:', bookData.image_url);
         await deleteImageFromSupabase(bookData.image_url);
+      } else if (bookData?.image_url) {
+        console.log('Skipping image deletion - not from our storage bucket:', bookData.image_url);
       }
 
       // Now delete the book record (even if fetch failed, try to delete)
@@ -189,6 +222,8 @@ export async function deleteBook(id: string): Promise<void> {
       if (error) {
         console.error('Error deleting book from Supabase:', error);
         deleteBookLocal(id);
+      } else {
+        console.log('Book deleted successfully from Supabase');
       }
       return;
     } catch (error) {
@@ -202,7 +237,8 @@ export async function deleteBook(id: string): Promise<void> {
   // For local storage, also try to delete the image if it exists
   const books = getAllBooksLocal();
   const bookToDelete = books.find(b => b.id === id);
-  if (bookToDelete?.imageUrl) {
+  if (bookToDelete?.imageUrl && isSupabaseStorageUrl(bookToDelete.imageUrl)) {
+    console.log('Deleting book image from storage (local):', bookToDelete.imageUrl);
     await deleteImageFromSupabase(bookToDelete.imageUrl);
   }
   
