@@ -15,7 +15,6 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
   useEffect(() => {
     let isMounted = true;
     let codeReader: BrowserMultiFormatReader | null = null;
-    let stream: MediaStream | null = null;
 
     const startScanning = async () => {
       try {
@@ -99,9 +98,11 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
           // Ignore errors during cleanup
         }
       }
-      // Stop all tracks from the stream
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      // Also stop video tracks if video element has a stream
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+        videoRef.current.srcObject = null;
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
