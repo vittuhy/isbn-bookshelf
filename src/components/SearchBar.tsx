@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { BarcodeScanner } from './BarcodeScanner';
 
 interface SearchBarProps {
@@ -8,6 +8,7 @@ interface SearchBarProps {
 export function SearchBar({ onSearch }: SearchBarProps) {
   const [query, setQuery] = useState('');
   const [showScanner, setShowScanner] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -17,9 +18,15 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     return () => clearTimeout(timer);
   }, [query, onSearch]);
 
-  const handleClear = () => {
+  const handleClear = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setQuery('');
     onSearch('');
+    // Keep focus on the input field
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   const handleBarcodeScan = useCallback((scannedIsbn: string) => {
@@ -39,6 +46,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       <div className="mb-6 relative">
         <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 focus-within:ring-2 focus-within:ring-blue-500">
           <input
+            ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
