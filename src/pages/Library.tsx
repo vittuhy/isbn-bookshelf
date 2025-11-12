@@ -380,6 +380,24 @@ export function Library() {
                 ? 'Nebyly nalezeny žádné knihy odpovídající vašemu vyhledávání.' 
                 : 'Vaše knihovna je prázdná. Přidejte svou první knihu výše!'}
             </p>
+            {searchQuery.trim() && (
+              <button
+                onClick={() => {
+                  // Open manual addition dialog with prefilled ISBN
+                  setShowAddForm(false);
+                  setEditingBook({
+                    id: '',
+                    isbn13: searchQuery.trim().replace(/\D/g, ''),
+                    title: '',
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                  } as Book);
+                }}
+                className="mt-4 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Přidat ručně
+              </button>
+            )}
           </div>
         ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
