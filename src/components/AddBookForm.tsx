@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { lookupBook } from '../lib/bookLookup';
 import { normalizeISBN } from '../lib/isbn';
 import type { BookMetadata } from '../types';
+import { BarcodeScanner } from './BarcodeScanner';
 
 interface AddBookFormProps {
   onAdd: (metadata: BookMetadata) => void;
@@ -13,6 +14,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [useGoogleSearchOnly, setUseGoogleSearchOnly] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,28 +63,49 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
     }
   };
 
+  const handleBarcodeScan = (scannedIsbn: string) => {
+    // Clean the scanned ISBN (remove any non-digit characters except X)
+    const cleaned = scannedIsbn.replace(/[^\dX]/g, '');
+    setIsbn(cleaned);
+    setError(null);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="mb-0">
-      <div className="flex gap-2">
-        <input
-          type="tel"
-          inputMode="numeric"
-          pattern="[0-9-]*"
-          value={isbn}
-          onChange={(e) => setIsbn(e.target.value)}
-          placeholder="Zadejte ISBN"
-          className="flex-1 min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={loading}
-          autoFocus
-        />
-        <button
-          type="submit"
-          disabled={loading || !isbn.trim()}
-          className="flex-shrink-0 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
-        >
-          {loading ? 'Vyhledávání...' : 'Přidat knihu'}
-        </button>
-      </div>
+    <>
+      <form onSubmit={handleSubmit} className="mb-0">
+        <div className="flex gap-2">
+          <div className="flex-1 min-w-0 flex items-center gap-2 border border-gray-300 rounded-lg px-2 focus-within:ring-2 focus-within:ring-blue-500">
+            <input
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9-]*"
+              value={isbn}
+              onChange={(e) => setIsbn(e.target.value)}
+              placeholder="Zadejte ISBN"
+              className="flex-1 min-w-0 px-2 py-2 border-0 focus:outline-none"
+              disabled={loading}
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={() => setShowScanner(true)}
+              disabled={loading}
+              className="flex-shrink-0 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
+              title="Skenovat čárový kód"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2 6h2v12H2V6zm3 0h1v12H5V6zm2 0h3v12H7V6zm4 0h1v12h-1V6zm3 0h2v12h-2V6zm3 0h1v12h-1V6zm2 0h3v12h-3V6zm4 0h1v12h-1V6z"/>
+              </svg>
+            </button>
+          </div>
+          <button
+            type="submit"
+            disabled={loading || !isbn.trim()}
+            className="flex-shrink-0 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+          >
+            {loading ? 'Vyhledávání...' : 'Přidat'}
+          </button>
+        </div>
       <div className="mt-2 flex items-center gap-2">
         <input
           type="checkbox"
@@ -116,6 +139,13 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
         </div>
       )}
     </form>
+    {showScanner && (
+      <BarcodeScanner
+        onScan={handleBarcodeScan}
+        onClose={() => setShowScanner(false)}
+      />
+    )}
+    </>
   );
 }
 
