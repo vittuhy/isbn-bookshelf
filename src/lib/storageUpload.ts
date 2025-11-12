@@ -35,6 +35,9 @@ export async function uploadImageToSupabase(
     if (error.message?.includes('bucket') || error.message?.includes('not found')) {
       throw new Error('Úložiště obrázků není nakonfigurováno. Vytvořte prosím bucket "book-covers" v Supabase Storage.');
     }
+    if (error.message?.includes('row-level security') || error.message?.includes('policy')) {
+      throw new Error('Chyba oprávnění: Je potřeba nastavit Storage policy. Viz dokumentace v Supabase Dashboard → Storage → Policies.');
+    }
     throw new Error(`Chyba při nahrávání obrázku: ${error.message}`);
   }
 
