@@ -19,17 +19,23 @@ export async function uploadImageToSupabase(
   const extension = fileName.split('.').pop() || 'jpg';
   const uniqueFileName = `${timestamp}-${randomId}.${extension}`;
 
+  // Detect MIME type from blob (defaults to jpeg)
+  const contentType = file.type || 'image/jpeg';
+
   // Upload to Supabase Storage
   const { error } = await supabase.storage
     .from(STORAGE_BUCKET)
     .upload(uniqueFileName, file, {
-      contentType: 'image/jpeg',
+      contentType,
       upsert: false,
     });
 
   if (error) {
     console.error('Error uploading to Supabase Storage:', error);
-    throw new Error(`Failed to upload image: ${error.message}`);
+    if (error.message?.includes('bucket') || error.message?.includes('not found')) {
+      throw new Error('Úložiště obrázků není nakonfigurováno. Vytvořte prosím bucket "book-covers" v Supabase Storage.');
+    }
+    throw new Error(`Chyba při nahrávání obrázku: ${error.message}`);
   }
 
   // Get public URL

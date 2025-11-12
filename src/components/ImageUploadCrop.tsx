@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import Cropper from 'react-easy-crop';
 import { cropImage, resizeImage } from '../lib/imageUtils';
 import { uploadImageToSupabase } from '../lib/storageUpload';
@@ -15,10 +15,28 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (max 10MB before processing)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        setError('Obrázek je příliš velký. Maximální velikost je 10MB.');
+        e.target.value = '';
+        return;
+      }
+
+      // Validate MIME type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('Nepodporovaný formát obrázku. Použijte JPEG, PNG nebo WebP.');
+        e.target.value = '';
+        return;
+      }
+
+      setError(null);
       const reader = new FileReader();
       reader.onload = () => {
         setImageSrc(reader.result as string);
@@ -27,6 +45,11 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
     }
     // Reset input so same file can be selected again
     e.target.value = '';
+  }, []);
+
+  // Auto-trigger file input when component mounts
+  useEffect(() => {
+    fileInputRef.current?.click();
   }, []);
 
   const onCropComplete = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
@@ -65,37 +88,20 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
       <div className="fixed inset-0 bg-black bg-opacity-75 z-[60] flex items-center justify-center p-4">
         <div className="bg-white rounded-lg max-w-md w-full p-6">
           <h3 className="text-lg font-bold mb-4">Vybrat obrázek</h3>
-          <div className="space-y-3">
-            <label className="block">
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <div className="px-4 py-3 bg-blue-600 text-white rounded-lg text-center cursor-pointer hover:bg-blue-700 transition-colors">
-                📷 Pořídit fotku
-              </div>
-            </label>
-            <label className="block">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <div className="px-4 py-3 bg-gray-600 text-white rounded-lg text-center cursor-pointer hover:bg-gray-700 transition-colors">
-                🖼️ Vybrat z galerie
-              </div>
-            </label>
-            <button
-              onClick={onCancel}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Zrušit
-            </button>
-          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <button
+            onClick={onCancel}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Zrušit
+          </button>
         </div>
       </div>
     );
