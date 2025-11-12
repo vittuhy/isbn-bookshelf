@@ -180,10 +180,10 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
   }, [book]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style={{ touchAction: 'none' }}>
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col" style={{ touchAction: 'pan-y' }}>
-        <div className="flex justify-between items-center p-3 border-b flex-shrink-0">
-            <h2 className="text-xl font-bold">{book && book.id ? 'Detail knihy' : 'Přidat knihu ručně'}</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4" style={{ touchAction: 'none' }}>
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] flex flex-col" style={{ touchAction: 'pan-y' }}>
+        <div className="flex justify-between items-center p-2 sm:p-3 border-b flex-shrink-0">
+            <h2 className="text-lg sm:text-xl font-bold">{book && book.id ? 'Detail knihy' : 'Přidat knihu ručně'}</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -191,9 +191,9 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
             ×
           </button>
         </div>
-        <div className="p-3 overflow-y-auto flex-1">
-          <form onSubmit={handleSubmit} className="space-y-2">
-            <div className="grid grid-cols-2 gap-2">
+        <div className="p-2 sm:p-3 overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="space-y-1.5 sm:space-y-2">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
               <div className="col-span-2">
                 <label className="block text-xs font-medium mb-1">Název <span className="text-red-500">*</span></label>
                 <input
@@ -336,7 +336,7 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
               ) : (
                 <div className="col-span-2 border-t pt-2">
                   <label className="block text-xs font-medium mb-1">ISBN</label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                     <div>
                       <span className="text-xs text-gray-500">ISBN-13:</span>
                       <p className="font-mono text-xs mt-0.5">{book.isbn13}</p>
@@ -353,7 +353,7 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
             </div>
           </form>
         </div>
-        <div className="flex gap-2 justify-between p-3 border-t flex-shrink-0">
+        <div className="flex gap-1.5 sm:gap-2 justify-between p-2 sm:p-3 border-t flex-shrink-0">
           <div>
             {onDelete && book && book.id && (
               <button
