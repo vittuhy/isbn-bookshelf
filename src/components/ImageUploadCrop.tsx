@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import Cropper from 'react-easy-crop';
 import { cropImage, resizeImage } from '../lib/imageUtils';
 import { uploadImageToSupabase } from '../lib/storageUpload';
@@ -48,14 +48,7 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
     e.target.value = '';
   }, []);
 
-  // Auto-trigger camera when component mounts
-  useEffect(() => {
-    cameraInputRef.current?.click();
-  }, []);
-
-  const handleOpenGallery = useCallback(() => {
-    galleryInputRef.current?.click();
-  }, []);
+  // Don't auto-trigger - let user choose camera or gallery
 
   const onCropComplete = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -88,26 +81,56 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
     }
   };
 
-  // Hidden file inputs
+  // Show overlay with camera and gallery options before image is selected
   if (!imageSrc) {
     return (
-      <>
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
-        <input
-          ref={galleryInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
-      </>
+      <div className="fixed inset-0 bg-black bg-opacity-75 z-[60] flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg max-w-sm w-full p-6">
+          <h3 className="text-lg font-bold mb-4 text-center">Vybrat obrázek</h3>
+          <div className="space-y-3">
+            <button
+              onClick={() => cameraInputRef.current?.click()}
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Pořídit fotku</span>
+            </button>
+            <button
+              onClick={() => galleryInputRef.current?.click()}
+              className="w-full px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>Vybrat z galerie</span>
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Zrušit
+            </button>
+          </div>
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          <input
+            ref={galleryInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+        </div>
+      </div>
     );
   }
 
@@ -140,18 +163,6 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
           onZoomChange={setZoom}
           onCropComplete={onCropComplete}
         />
-        {/* Gallery button overlay */}
-        <button
-          onClick={handleOpenGallery}
-          disabled={uploading}
-          className="absolute top-4 right-4 px-4 py-2 bg-white bg-opacity-90 rounded-lg shadow-md hover:bg-opacity-100 transition-all disabled:opacity-50 flex items-center gap-2"
-          title="Vybrat z galerie"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span className="text-sm font-medium">Galerie</span>
-        </button>
       </div>
       <div className="bg-white p-4">
         <div className="mb-4">
