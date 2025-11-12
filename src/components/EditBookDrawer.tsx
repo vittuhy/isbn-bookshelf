@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Book } from '../types';
 import { normalizeISBN, isbn13To10 } from '../lib/isbn';
+import { ImageUploadCrop } from './ImageUploadCrop';
 
 interface EditBookDrawerProps {
   book: Book | null;
@@ -13,6 +14,7 @@ interface EditBookDrawerProps {
 export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete }: EditBookDrawerProps) {
   const [currentTags, setCurrentTags] = useState<string[]>(book?.tags || []);
   const [tagInput, setTagInput] = useState('');
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const [formData, setFormData] = useState({
     title: book?.title || '',
@@ -238,14 +240,24 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
               </div>
               <div className="col-span-2">
                 <label className="block text-xs font-medium mb-1">URL obrázku</label>
-                <input
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  style={{ fontSize: '16px' }}
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    placeholder="https://example.com/image.jpg"
+                    className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    style={{ fontSize: '16px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowImageUpload(true)}
+                    className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
+                    title="Pořídit nebo vybrat obrázek"
+                  >
+                    📷
+                  </button>
+                </div>
               </div>
               <div className="col-span-2">
                 <label className="block text-xs font-medium mb-1">Tagy</label>
@@ -380,6 +392,17 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
           </div>
         </div>
       </div>
+      
+      {/* Image upload and crop modal */}
+      {showImageUpload && (
+        <ImageUploadCrop
+          onComplete={(imageUrl) => {
+            setFormData({ ...formData, imageUrl });
+            setShowImageUpload(false);
+          }}
+          onCancel={() => setShowImageUpload(false)}
+        />
+      )}
     </div>
   );
 }
