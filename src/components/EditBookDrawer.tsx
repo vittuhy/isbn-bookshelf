@@ -321,17 +321,6 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
                     className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     style={{ fontSize: '16px' }}
                   />
-                  <label className="block text-xs font-medium mb-1 mt-2">ISBN-10 (volitelné)</label>
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    pattern="[0-9X-]*"
-                    value={formData.isbn10}
-                    onChange={(e) => setFormData({ ...formData, isbn10: e.target.value })}
-                    placeholder="80-257-4767-4 nebo 8025747674"
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    style={{ fontSize: '16px' }}
-                  />
                 </div>
               ) : (
                 <div className="col-span-2 border-t pt-2">
