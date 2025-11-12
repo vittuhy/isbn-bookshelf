@@ -31,6 +31,7 @@ function getTagColor(tag: string): string {
 
 export function BookCard({ book, onEdit }: BookCardProps) {
   const [imageError, setImageError] = useState(false);
+  const [showFullImage, setShowFullImage] = useState(false);
   const hasImageUrl = !!(book.imageUrl || book.coverUrl);
 
   // Reset error state when image URL changes
@@ -59,7 +60,10 @@ export function BookCard({ book, onEdit }: BookCardProps) {
 
       <div className="flex flex-1">
         <div className="flex flex-col items-center flex-shrink-0 mt-4 ml-4 relative">
-          <div className="w-32 h-36 bg-gray-200 flex items-center justify-center relative">
+          <div 
+            className="w-32 h-36 bg-gray-200 flex items-center justify-center relative cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => hasImageUrl && !imageError && setShowFullImage(true)}
+          >
             {hasImageUrl ? (
               <img
                 key={`${book.id}-${book.imageUrl || book.coverUrl}-${book.updatedAt}`}
@@ -116,6 +120,33 @@ export function BookCard({ book, onEdit }: BookCardProps) {
           </div>
         </div>
       </div>
+      
+      {/* Full-size image modal */}
+      {showFullImage && hasImageUrl && !imageError && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowFullImage(false)}
+        >
+          <button
+            onClick={() => setShowFullImage(false)}
+            className="absolute top-4 right-4 text-white hover:text-gray-300 text-4xl z-10"
+            title="Zavřít"
+          >
+            ×
+          </button>
+          <img
+            src={(() => {
+              const imageUrl = book.imageUrl || book.coverUrl || '';
+              const separator = imageUrl.includes('?') ? '&' : '?';
+              const timestamp = new Date(book.updatedAt).getTime();
+              return `${imageUrl}${separator}_cb=${timestamp}`;
+            })()}
+            alt={book.title}
+            className="max-w-full max-h-[90vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
