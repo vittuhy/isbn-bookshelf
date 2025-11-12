@@ -167,7 +167,8 @@ export async function deleteBook(id: string): Promise<void> {
   if (supabase) {
     try {
       // First, fetch the book to get its imageUrl before deleting
-      const { data: bookData } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: bookData } = await (supabase as any)
         .from('books')
         .select('image_url')
         .eq('id', id)
