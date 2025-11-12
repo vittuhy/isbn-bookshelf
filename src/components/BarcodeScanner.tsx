@@ -13,31 +13,47 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
     const codeReader = new BrowserMultiFormatReader();
     codeReaderRef.current = codeReader;
 
     const startScanning = async () => {
       try {
+        if (!isMounted) return;
         setScanning(true);
         setError(null);
 
         // Get available video input devices
         const videoInputDevices = await codeReader.listVideoInputDevices();
         
+        if (!isMounted) return;
+        
         if (videoInputDevices.length === 0) {
           setError('Žádná kamera není k dispozici.');
+          setScanning(false);
           return;
         }
 
-        // Use the first available camera (usually the back camera on mobile)
-        const selectedDeviceId = videoInputDevices[0].deviceId;
+        // Prefer back camera on mobile devices (usually labeled as "back" or "environment")
+        // On desktop, use the first available camera
+        let selectedDeviceId = videoInputDevices[0].deviceId;
+        const backCamera = videoInputDevices.find(device => 
+          device.label.toLowerCase().includes('back') || 
+          device.label.toLowerCase().includes('rear') ||
+          device.label.toLowerCase().includes('environment')
+        );
+        if (backCamera) {
+          selectedDeviceId = backCamera.deviceId;
+        }
 
-        if (videoRef.current) {
+        if (videoRef.current && isMounted) {
           // Start decoding from video stream
           codeReader.decodeFromVideoDevice(
             selectedDeviceId,
             videoRef.current,
             (result, error) => {
+              if (!isMounted) return;
+              
               if (result) {
                 const text = result.getText();
                 // Check if it looks like an ISBN (EAN-13 or ISBN-10)
@@ -59,6 +75,7 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
           );
         }
       } catch (err) {
+        if (!isMounted) return;
         console.error('Error starting camera:', err);
         setError(err instanceof Error ? err.message : 'Nepodařilo se spustit kameru. Zkontrolujte oprávnění.');
         setScanning(false);
@@ -69,8 +86,13 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
 
     // Cleanup on unmount
     return () => {
+      isMounted = false;
       if (codeReaderRef.current) {
-        codeReaderRef.current.reset();
+        try {
+          codeReaderRef.current.reset();
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
       }
     };
   }, [onScan, onClose]);
