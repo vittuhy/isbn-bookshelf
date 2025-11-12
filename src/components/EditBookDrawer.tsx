@@ -203,6 +203,7 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
                   required
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   style={{ fontSize: '16px' }}
+                  autoFocus={!book || !book.id}
                 />
               </div>
               <div>
