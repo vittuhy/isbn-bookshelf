@@ -91,29 +91,34 @@ export function isSupabaseStorageUrl(url: string | undefined | null): boolean {
  * Delete image from Supabase Storage
  */
 export async function deleteImageFromSupabase(imageUrl: string): Promise<void> {
+  console.log('[deleteImageFromSupabase] Called with URL:', imageUrl);
+  
   if (!supabase) {
-    console.warn('Supabase is not configured, skipping image deletion');
+    console.warn('[deleteImageFromSupabase] Supabase is not configured, skipping image deletion');
     return;
   }
 
-  if (!imageUrl) {
+  if (!imageUrl || typeof imageUrl !== 'string' || imageUrl.trim() === '') {
+    console.warn('[deleteImageFromSupabase] Invalid or empty imageUrl provided');
     return;
   }
 
   // Only delete if it's from our storage bucket
   if (!isSupabaseStorageUrl(imageUrl)) {
-    console.log('Skipping deletion - URL is not from our storage bucket:', imageUrl);
+    console.log('[deleteImageFromSupabase] Skipping deletion - URL is not from our storage bucket:', imageUrl);
     return;
   }
 
   // Extract filename from URL
   const fileName = extractFileNameFromUrl(imageUrl);
   if (!fileName) {
-    console.warn('Could not extract filename from URL:', imageUrl);
+    console.warn('[deleteImageFromSupabase] Could not extract filename from URL:', imageUrl);
     return;
   }
 
-  console.log('Attempting to delete image from storage:', fileName, 'from URL:', imageUrl);
+  console.log('[deleteImageFromSupabase] Attempting to delete image from storage');
+  console.log('[deleteImageFromSupabase] Filename:', fileName);
+  console.log('[deleteImageFromSupabase] Full URL:', imageUrl);
 
   try {
     const { data, error } = await supabase.storage
@@ -121,20 +126,23 @@ export async function deleteImageFromSupabase(imageUrl: string): Promise<void> {
       .remove([fileName]);
 
     if (error) {
-      console.error('Error deleting image from Supabase Storage:', error);
-      console.error('Filename:', fileName);
-      console.error('Full URL:', imageUrl);
+      console.error('[deleteImageFromSupabase] Error deleting image from Supabase Storage:', error);
+      console.error('[deleteImageFromSupabase] Error message:', error.message);
+      console.error('[deleteImageFromSupabase] Filename:', fileName);
+      console.error('[deleteImageFromSupabase] Full URL:', imageUrl);
       // Don't throw - we don't want to fail book deletion if image deletion fails
     } else {
-      console.log('Successfully deleted image from storage:', fileName);
-      if (data) {
-        console.log('Deleted files:', data);
+      console.log('[deleteImageFromSupabase] ✅ Successfully deleted image from storage:', fileName);
+      if (data && data.length > 0) {
+        console.log('[deleteImageFromSupabase] Deleted files:', data);
+      } else {
+        console.log('[deleteImageFromSupabase] No files returned in response (might already be deleted)');
       }
     }
   } catch (error) {
-    console.error('Exception while deleting image:', error);
-    console.error('Filename:', fileName);
-    console.error('Full URL:', imageUrl);
+    console.error('[deleteImageFromSupabase] Exception while deleting image:', error);
+    console.error('[deleteImageFromSupabase] Filename:', fileName);
+    console.error('[deleteImageFromSupabase] Full URL:', imageUrl);
     // Don't throw - we don't want to fail book deletion if image deletion fails
   }
 }

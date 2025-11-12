@@ -132,13 +132,21 @@ export async function saveBook(book: Book): Promise<void> {
           .eq('id', book.id)
           .single();
 
+        // Normalize imageUrl values (handle undefined, null, empty string)
+        const oldImageUrl = existingBook?.image_url || null;
+        const newImageUrl = book.imageUrl || null;
+
         // If the book exists and has an old imageUrl that's different from the new one
-        if (existingBook?.image_url && 
-            existingBook.image_url !== book.imageUrl &&
-            isSupabaseStorageUrl(existingBook.image_url)) {
+        // AND the old imageUrl is from our Supabase storage
+        if (oldImageUrl && 
+            oldImageUrl !== newImageUrl &&
+            isSupabaseStorageUrl(oldImageUrl)) {
           // Delete the old image from storage
-          console.log('Image URL changed, deleting old image:', existingBook.image_url);
-          await deleteImageFromSupabase(existingBook.image_url);
+          console.log('[saveBook] Image URL changed, deleting old image:', oldImageUrl);
+          console.log('[saveBook] New image URL:', newImageUrl);
+          await deleteImageFromSupabase(oldImageUrl);
+        } else if (oldImageUrl && oldImageUrl !== newImageUrl) {
+          console.log('[saveBook] Image URL changed but old URL is not from Supabase storage, skipping deletion:', oldImageUrl);
         }
       }
 
@@ -183,11 +191,16 @@ export async function saveBook(book: Book): Promise<void> {
   if (book.id) {
     const books = getAllBooksLocal();
     const existingBook = books.find(b => b.id === book.id);
-    if (existingBook?.imageUrl && 
-        existingBook.imageUrl !== book.imageUrl &&
-        isSupabaseStorageUrl(existingBook.imageUrl)) {
-      console.log('Image URL changed in local storage, deleting old image:', existingBook.imageUrl);
-      await deleteImageFromSupabase(existingBook.imageUrl);
+    
+    // Normalize imageUrl values
+    const oldImageUrl = existingBook?.imageUrl || null;
+    const newImageUrl = book.imageUrl || null;
+    
+    if (oldImageUrl && 
+        oldImageUrl !== newImageUrl &&
+        isSupabaseStorageUrl(oldImageUrl)) {
+      console.log('[saveBook] Image URL changed in local storage, deleting old image:', oldImageUrl);
+      await deleteImageFromSupabase(oldImageUrl);
     }
   }
   
@@ -198,36 +211,46 @@ export async function deleteBook(id: string): Promise<void> {
   if (supabase) {
     try {
       // First, fetch the book to get its imageUrl before deleting
+      console.log('[deleteBook] Fetching book data for deletion, id:', id);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: bookData } = await (supabase as any)
+      const { data: bookData, error: fetchError } = await (supabase as any)
         .from('books')
         .select('image_url')
         .eq('id', id)
         .single();
 
+      if (fetchError) {
+        console.warn('[deleteBook] Error fetching book data (might not exist):', fetchError);
+      }
+
       // Delete the image from storage if it exists and is from our storage bucket
-      if (bookData?.image_url && isSupabaseStorageUrl(bookData.image_url)) {
-        console.log('Deleting book image from storage:', bookData.image_url);
-        await deleteImageFromSupabase(bookData.image_url);
-      } else if (bookData?.image_url) {
-        console.log('Skipping image deletion - not from our storage bucket:', bookData.image_url);
+      if (bookData?.image_url) {
+        if (isSupabaseStorageUrl(bookData.image_url)) {
+          console.log('[deleteBook] Deleting book image from storage:', bookData.image_url);
+          await deleteImageFromSupabase(bookData.image_url);
+        } else {
+          console.log('[deleteBook] Skipping image deletion - not from our storage bucket:', bookData.image_url);
+        }
+      } else {
+        console.log('[deleteBook] No image URL found for book, skipping image deletion');
       }
 
       // Now delete the book record (even if fetch failed, try to delete)
+      console.log('[deleteBook] Deleting book record from database');
       const { error } = await supabase
         .from('books')
         .delete()
         .eq('id', id);
       
       if (error) {
-        console.error('Error deleting book from Supabase:', error);
+        console.error('[deleteBook] Error deleting book from Supabase:', error);
         deleteBookLocal(id);
       } else {
-        console.log('Book deleted successfully from Supabase');
+        console.log('[deleteBook] Book deleted successfully from Supabase');
       }
       return;
     } catch (error) {
-      console.error('Error deleting book:', error);
+      console.error('[deleteBook] Exception while deleting book:', error);
       // Try to delete locally as fallback
       deleteBookLocal(id);
       return;
@@ -235,11 +258,16 @@ export async function deleteBook(id: string): Promise<void> {
   }
   
   // For local storage, also try to delete the image if it exists
+  console.log('[deleteBook] Using local storage fallback');
   const books = getAllBooksLocal();
   const bookToDelete = books.find(b => b.id === id);
-  if (bookToDelete?.imageUrl && isSupabaseStorageUrl(bookToDelete.imageUrl)) {
-    console.log('Deleting book image from storage (local):', bookToDelete.imageUrl);
-    await deleteImageFromSupabase(bookToDelete.imageUrl);
+  if (bookToDelete?.imageUrl) {
+    if (isSupabaseStorageUrl(bookToDelete.imageUrl)) {
+      console.log('[deleteBook] Deleting book image from storage (local):', bookToDelete.imageUrl);
+      await deleteImageFromSupabase(bookToDelete.imageUrl);
+    } else {
+      console.log('[deleteBook] Skipping image deletion - not from our storage bucket (local):', bookToDelete.imageUrl);
+    }
   }
   
   deleteBookLocal(id);
