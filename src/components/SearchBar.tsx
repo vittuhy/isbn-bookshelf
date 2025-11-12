@@ -21,12 +21,17 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   const handleClear = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // Clear the query
     setQuery('');
     onSearch('');
-    // Keep focus on the input field
-    setTimeout(() => {
+    // Immediately refocus the input field
+    requestAnimationFrame(() => {
       inputRef.current?.focus();
-    }, 0);
+      // Also ensure focus on next frame for mobile browsers
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 10);
+    });
   };
 
   const handleBarcodeScan = useCallback((scannedIsbn: string) => {
@@ -65,7 +70,9 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           </button>
           {query && (
             <button
+              type="button"
               onClick={handleClear}
+              onMouseDown={(e) => e.preventDefault()} // Prevent blur on mousedown
               className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 transition-colors"
               title="Vymazat"
             >

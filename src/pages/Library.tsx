@@ -345,8 +345,17 @@ export function Library() {
         </div>
 
         {showAddForm && (
-          <div className="bg-white rounded-lg shadow p-6 pb-4 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Přidat novou knihu</h2>
+          <div className="bg-white rounded-lg shadow p-6 pb-4 mb-6 relative">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Přidat novou knihu</h2>
+              <button
+                onClick={() => setShowAddForm(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+                title="Zavřít"
+              >
+                ×
+              </button>
+            </div>
             <AddBookForm 
               onAdd={handleAddBook} 
               onManualAdd={() => {
