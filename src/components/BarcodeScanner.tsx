@@ -117,15 +117,28 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
           </button>
         </div>
         <div className="p-4 flex flex-col items-center">
-          <div className="relative w-full max-w-sm">
+          <div className="relative w-full max-w-sm" style={{ minHeight: '300px' }}>
             <video
               ref={videoRef}
               className="w-full rounded-lg"
-              style={{ maxHeight: '400px', objectFit: 'contain' }}
+              style={{ 
+                maxHeight: '400px', 
+                minHeight: '300px',
+                objectFit: 'cover',
+                display: 'block'
+              }}
             />
             {scanning && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="border-2 border-blue-500 rounded-lg" style={{ width: '80%', height: '60%' }} />
+                <div 
+                  className="border-2 border-blue-500 rounded-lg" 
+                  style={{ 
+                    width: '80%', 
+                    height: '200px',
+                    minWidth: '200px',
+                    maxWidth: '300px'
+                  }} 
+                />
               </div>
             )}
           </div>
