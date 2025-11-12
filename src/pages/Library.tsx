@@ -377,18 +377,22 @@ export function Library() {
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">
               {searchQuery.trim() 
-                ? 'Nebyly nalezeny žádné knihy odpovídající vašemu vyhledávání.' 
+                ? `Nebyly nalezeny žádné knihy odpovídající "${searchQuery.trim()}".` 
                 : 'Vaše knihovna je prázdná. Přidejte svou první knihu výše!'}
             </p>
             {searchQuery.trim() && (
               <button
                 onClick={() => {
-                  // Open manual addition dialog with prefilled ISBN
+                  // Open manual addition dialog with prefilled data
                   setShowAddForm(false);
+                  const trimmedQuery = searchQuery.trim();
+                  // Check if search term is numeric (ISBN) or text (title)
+                  const isNumeric = /^\d+$/.test(trimmedQuery.replace(/\D/g, ''));
+                  
                   setEditingBook({
                     id: '',
-                    isbn13: searchQuery.trim().replace(/\D/g, ''),
-                    title: '',
+                    isbn13: isNumeric ? trimmedQuery.replace(/\D/g, '') : '',
+                    title: isNumeric ? '' : trimmedQuery,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
                   } as Book);
