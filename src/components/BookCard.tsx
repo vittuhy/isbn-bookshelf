@@ -61,7 +61,7 @@ export function BookCard({ book, onEdit }: BookCardProps) {
       <div className="flex flex-1">
         <div className="flex flex-col items-center flex-shrink-0 mt-4 ml-4 relative">
           <div 
-            className="w-32 h-36 bg-gray-200 flex items-center justify-center relative cursor-pointer hover:opacity-90 transition-opacity"
+            className="w-32 h-32 bg-gray-200 flex items-center justify-center relative cursor-pointer hover:opacity-90 transition-opacity"
             onClick={() => hasImageUrl && !imageError && setShowFullImage(true)}
           >
             {hasImageUrl ? (
@@ -92,7 +92,7 @@ export function BookCard({ book, onEdit }: BookCardProps) {
           </div>
         </div>
         <div className="flex-1 pt-4 pb-4 pl-4 pr-8 flex flex-col min-w-0 overflow-hidden">
-          <div className="flex flex-col" style={{ height: '144px' }}>
+          <div className="flex flex-col" style={{ height: '128px' }}>
             <div className="flex-shrink-0">
               <h3 className="font-semibold text-lg mb-1 line-clamp-2">{book.title}</h3>
               {book.authors && book.authors.length > 0 && (
