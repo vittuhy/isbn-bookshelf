@@ -61,7 +61,7 @@ export function BookCard({ book, onEdit }: BookCardProps) {
       <div className="flex flex-1">
         <div className="flex flex-col items-center flex-shrink-0 mt-4 ml-4 relative">
           <div 
-            className="w-32 h-32 bg-gray-200 flex items-center justify-center relative cursor-pointer hover:opacity-90 transition-opacity"
+            className="w-32 h-32 bg-white flex items-center justify-center relative cursor-pointer hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
             onClick={() => hasImageUrl && !imageError && setShowFullImage(true)}
           >
             {hasImageUrl ? (
@@ -75,7 +75,7 @@ export function BookCard({ book, onEdit }: BookCardProps) {
                   return `${imageUrl}${separator}_cb=${timestamp}`;
                 })()}
                 alt={book.title}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-contain"
                 loading="lazy"
                 onLoad={() => {
                   setImageError(false);

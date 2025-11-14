@@ -283,7 +283,9 @@ export function Library() {
         throw new Error('ISBN-13 je povinné pole');
       }
       
-      await saveBook(book);
+      // Save book and get the updated version (with converted image URL if external)
+      const savedBook = await saveBook(book);
+      
       const updatedBooks = await getAllBooks();
       setBooks(updatedBooks);
       
@@ -291,6 +293,15 @@ export function Library() {
         await handleSearch(searchQuery);
       } else {
         setFilteredBooks(updatedBooks);
+      }
+      
+      // Find the updated book in the refreshed list to ensure we have the latest data
+      const updatedBook = updatedBooks.find(b => b.id === savedBook.id) || savedBook;
+      
+      // Update the editing book state with the saved version to show updated URL immediately
+      // This ensures if the drawer reopens, it shows the converted URL
+      if (editingBook?.id === book.id) {
+        setEditingBook(updatedBook);
       }
       
       // Close the dialog after saving and prevent URL check from reopening it

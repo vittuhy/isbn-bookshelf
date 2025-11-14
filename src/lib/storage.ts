@@ -1,7 +1,7 @@
 import type { Book } from '../types';
 import type { Database } from './database.types';
 import { supabase } from './supabase';
-import { deleteImageFromSupabase, isSupabaseStorageUrl } from './storageUpload';
+import { deleteImageFromSupabase, isSupabaseStorageUrl, downloadAndUploadExternalImage } from './storageUpload';
 
 const STORAGE_KEY = 'isbn_database_books';
 
@@ -120,7 +120,7 @@ export async function getAllBooks(): Promise<Book[]> {
   return getAllBooksLocal();
 }
 
-export async function saveBook(book: Book): Promise<void> {
+export async function saveBook(book: Book): Promise<Book> {
   if (supabase) {
     try {
       // If this is an existing book (has an ID), check if imageUrl has changed
@@ -150,8 +150,43 @@ export async function saveBook(book: Book): Promise<void> {
         }
       }
 
-      const row = bookToRow(book);
-      console.log('Saving book to Supabase:', row); // Debug log
+      // If imageUrl is external (not from Supabase), download and upload it
+      // ALWAYS convert external URLs, even if they're the same (in case conversion failed before)
+      let finalImageUrl = book.imageUrl;
+      console.log('[saveBook] Checking imageUrl:', book.imageUrl);
+      console.log('[saveBook] Is Supabase URL?', isSupabaseStorageUrl(book.imageUrl));
+      
+      if (book.imageUrl) {
+        if (!isSupabaseStorageUrl(book.imageUrl)) {
+          console.log('[saveBook] ✅ Image URL is external, downloading and uploading to Supabase storage');
+          console.log('[saveBook] Original URL:', book.imageUrl);
+          const convertedUrl = await downloadAndUploadExternalImage(book.imageUrl);
+          console.log('[saveBook] Converted URL:', convertedUrl);
+          
+          // Verify the conversion actually happened
+          if (isSupabaseStorageUrl(convertedUrl)) {
+            console.log('[saveBook] ✅ Conversion successful, using Supabase URL');
+            finalImageUrl = convertedUrl;
+          } else {
+            console.error('[saveBook] ❌ Conversion failed - URL is still external:', convertedUrl);
+            console.error('[saveBook] This might be due to CORS restrictions or network errors');
+            console.error('[saveBook] Saving with original external URL (image may break in future)');
+            // Still save with original URL, but log the warning
+            finalImageUrl = convertedUrl; // This will be the original URL if conversion failed
+          }
+          // Update the book object with the new Supabase URL
+          book.imageUrl = finalImageUrl;
+        } else {
+          console.log('[saveBook] Image URL is already from Supabase storage, skipping conversion');
+        }
+      } else {
+        console.log('[saveBook] No imageUrl provided, skipping conversion');
+      }
+
+      // Create a new book object with the updated imageUrl to ensure it's saved correctly
+      const bookToSave = { ...book, imageUrl: finalImageUrl };
+      const row = bookToRow(bookToSave);
+      console.log('[saveBook] Saving book to Supabase with image_url:', row.image_url); // Debug log
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error } = await (supabase as any)
         .from('books')
@@ -179,22 +214,32 @@ export async function saveBook(book: Book): Promise<void> {
       } else {
         console.log('Book saved successfully to Supabase');
       }
-      return;
+      // Return the book with the updated imageUrl
+      return bookToSave;
     } catch (error) {
       console.error('Error saving book:', error);
       saveBookLocal(book);
-      return;
+      return book;
     }
   }
   
-  // For local storage, also check if imageUrl changed
+  // For local storage, also handle external images and check if imageUrl changed
+  let finalImageUrl = book.imageUrl;
+  if (book.imageUrl && !isSupabaseStorageUrl(book.imageUrl)) {
+    console.log('[saveBook] Image URL is external (local storage), downloading and uploading to Supabase storage');
+    console.log('[saveBook] Original URL:', book.imageUrl);
+    finalImageUrl = await downloadAndUploadExternalImage(book.imageUrl);
+    console.log('[saveBook] New Supabase URL:', finalImageUrl);
+    book.imageUrl = finalImageUrl;
+  }
+
   if (book.id) {
     const books = getAllBooksLocal();
     const existingBook = books.find(b => b.id === book.id);
     
     // Normalize imageUrl values
     const oldImageUrl = existingBook?.imageUrl || null;
-    const newImageUrl = book.imageUrl || null;
+    const newImageUrl = finalImageUrl || null;
     
     if (oldImageUrl && 
         oldImageUrl !== newImageUrl &&
@@ -204,7 +249,10 @@ export async function saveBook(book: Book): Promise<void> {
     }
   }
   
-  saveBookLocal(book);
+  // Save with the updated imageUrl
+  const bookToSave = { ...book, imageUrl: finalImageUrl };
+  saveBookLocal(bookToSave);
+  return bookToSave;
 }
 
 export async function deleteBook(id: string): Promise<void> {
