@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import Cropper from 'react-easy-crop';
 import { cropImage, resizeImage } from '../lib/imageUtils';
 import { uploadImageToSupabase } from '../lib/storageUpload';
@@ -15,12 +15,70 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cameraPermissionGranted, setCameraPermissionGranted] = useState<boolean | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   // Detect if we're on a mobile device
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
                    ('ontouchstart' in window && window.innerWidth < 768);
+
+  // Check camera permission status on mount
+  useEffect(() => {
+    const checkCameraPermission = async () => {
+      try {
+        const nav = navigator as Navigator & { mediaDevices?: MediaDevices; permissions?: Permissions };
+        
+        // Check if Permissions API is available
+        if (nav.permissions) {
+          try {
+            const permissionStatus = await nav.permissions.query({ name: 'camera' as PermissionName });
+            setCameraPermissionGranted(permissionStatus.state === 'granted');
+            
+            // Listen for permission changes
+            permissionStatus.onchange = () => {
+              setCameraPermissionGranted(permissionStatus.state === 'granted');
+            };
+          } catch (e) {
+            // Permissions API might not support 'camera' query on all browsers
+            // Try getUserMedia to check if we can access camera
+            if (nav.mediaDevices && nav.mediaDevices.getUserMedia) {
+              try {
+                const stream = await nav.mediaDevices.getUserMedia({ video: true });
+                setCameraPermissionGranted(true);
+                // Stop the stream immediately - we just wanted to check permission
+                stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+              } catch (err) {
+                setCameraPermissionGranted(false);
+              }
+            } else {
+              setCameraPermissionGranted(null);
+            }
+          }
+        } else {
+          // Fallback: try to access camera to check permission
+          if (nav.mediaDevices && nav.mediaDevices.getUserMedia) {
+            try {
+              const stream = await nav.mediaDevices.getUserMedia({ video: true });
+              setCameraPermissionGranted(true);
+              stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+            } catch (err) {
+              setCameraPermissionGranted(false);
+            }
+          } else {
+            setCameraPermissionGranted(null);
+          }
+        }
+      } catch (error) {
+        // If we can't check, assume we need to request
+        setCameraPermissionGranted(null);
+      }
+    };
+
+    if (isMobile) {
+      checkCameraPermission();
+    }
+  }, [isMobile]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -94,7 +152,34 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
           <div className="space-y-3">
             {isMobile && (
               <button
-                onClick={() => cameraInputRef.current?.click()}
+                onClick={async () => {
+                  // If permission not yet granted, request it first using getUserMedia
+                  // This ensures permission is granted once, then file input will remember it
+                  const nav = navigator as Navigator & { mediaDevices?: MediaDevices };
+                  
+                  if (cameraPermissionGranted === false || cameraPermissionGranted === null) {
+                    if (nav.mediaDevices && nav.mediaDevices.getUserMedia) {
+                      try {
+                        const stream = await nav.mediaDevices.getUserMedia({ video: true });
+                        setCameraPermissionGranted(true);
+                        // Stop the stream - we just needed to request permission
+                        stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
+                        // Small delay to ensure permission is registered
+                        setTimeout(() => {
+                          cameraInputRef.current?.click();
+                        }, 100);
+                      } catch (err) {
+                        setError('Kamera není dostupná. Zkontrolujte oprávnění v nastavení prohlížeče.');
+                      }
+                    } else {
+                      // Fallback: just try the file input directly
+                      cameraInputRef.current?.click();
+                    }
+                  } else {
+                    // Permission already granted, just click the input
+                    cameraInputRef.current?.click();
+                  }
+                }}
                 className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
