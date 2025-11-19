@@ -146,10 +146,15 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
   // Show overlay with camera and gallery options before image is selected
   if (!imageSrc) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-75 z-[60] flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg max-w-sm w-full p-6">
-          <h3 className="text-lg font-bold mb-4 text-center">Vybrat obrázek</h3>
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-300">
+        <div className="glass-dark rounded-2xl sm:rounded-3xl max-w-sm w-full p-4 sm:p-6 border border-white/20 shadow-2xl">
+          <h3 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-center bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Vybrat obrázek</h3>
           <div className="space-y-3">
+            {error && (
+              <div className="mb-3 p-3 bg-red-500/20 border border-red-400/30 rounded-xl backdrop-blur-sm">
+                <p className="text-sm text-red-300">{error}</p>
+              </div>
+            )}
             {isMobile && (
               <button
                 onClick={async () => {
@@ -180,7 +185,7 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
                     cameraInputRef.current?.click();
                   }
                 }}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95 font-medium"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -191,11 +196,7 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
             )}
             <button
               onClick={() => galleryInputRef.current?.click()}
-              className={`w-full px-4 py-3 text-white rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                isMobile 
-                  ? 'bg-gray-600 hover:bg-gray-700' 
-                  : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+              className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95 font-medium"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -204,7 +205,7 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
             </button>
             <button
               onClick={onCancel}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full px-4 py-2.5 border border-white/20 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-all duration-300 font-medium"
             >
               Zrušit
             </button>
@@ -230,7 +231,7 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 z-[60] flex flex-col">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] flex flex-col">
       {/* Hidden file inputs for camera and gallery */}
       <input
         ref={cameraInputRef}
@@ -259,9 +260,9 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
           onCropComplete={onCropComplete}
         />
       </div>
-      <div className="bg-white p-4">
+      <div className="glass-dark border-t border-white/10 p-4 sm:p-6">
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Zoom</label>
+          <label className="block text-sm font-medium mb-2 text-gray-300">Zoom</label>
           <input
             type="range"
             min={1}
@@ -269,26 +270,29 @@ export function ImageUploadCrop({ onComplete, onCancel }: ImageUploadCropProps) 
             step={0.1}
             value={zoom}
             onChange={(e) => setZoom(Number(e.target.value))}
-            className="w-full"
+            className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500"
+            style={{
+              background: `linear-gradient(to right, rgb(139, 92, 246) 0%, rgb(139, 92, 246) ${((zoom - 1) / 2) * 100}%, rgba(255, 255, 255, 0.1) ${((zoom - 1) / 2) * 100}%, rgba(255, 255, 255, 0.1) 100%)`
+            }}
           />
         </div>
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-700">{error}</p>
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-400/30 rounded-xl backdrop-blur-sm">
+            <p className="text-sm text-red-300">{error}</p>
           </div>
         )}
-        <div className="flex gap-2">
+        <div className="flex gap-2 sm:gap-3">
           <button
             onClick={onCancel}
             disabled={uploading}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 border border-white/20 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-all duration-300 disabled:opacity-50 font-medium"
           >
             Zrušit
           </button>
           <button
             onClick={handleCropAndUpload}
             disabled={uploading || !croppedAreaPixels}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95 font-medium"
           >
             {uploading ? 'Nahrávání...' : 'Uložit'}
           </button>
