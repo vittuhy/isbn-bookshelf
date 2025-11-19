@@ -41,6 +41,20 @@
     min-height: -webkit-fill-available;
     height: 100%;
     background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a) !important;
+    position: relative;
+  }
+  
+  /* Ensure background extends into safe area */
+  #root::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
+    z-index: -1;
+    pointer-events: none;
   }
   
   /* Allow text selection in input fields and text areas */
