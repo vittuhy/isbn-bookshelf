@@ -107,7 +107,7 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
           <div className="flex-1 pt-4 pl-4 pb-4 pr-4 flex flex-col min-w-0 overflow-hidden h-full">
             <div className="flex flex-col h-full" style={{ height: '112px' }}>
               <div className="flex-shrink-0">
-                <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-1 line-clamp-2 text-white group-hover:text-purple-300 transition-colors leading-tight">
+                <h3 className="font-bold text-lg sm:text-lg mb-2 sm:mb-1 line-clamp-2 text-white group-hover:text-purple-300 transition-colors leading-tight">
                   {book.title}
                 </h3>
                 {book.authors && book.authors.length > 0 && (
