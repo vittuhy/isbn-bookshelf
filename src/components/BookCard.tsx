@@ -71,7 +71,7 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
     >
       {!isImageExpanded ? (
         <div className="flex flex-1 h-full">
-          <div className="flex flex-col items-start flex-shrink-0 relative pt-4 pl-4 pb-4 h-full justify-center">
+          <div className="flex flex-col items-start flex-shrink-0 relative pt-4 pl-4 pb-4 h-full">
             <div 
               className="w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center relative cursor-pointer hover:opacity-90 transition-all duration-300 rounded-xl overflow-hidden border border-white/10 hover:border-purple-400/50 group-hover:scale-105"
               onClick={handleImageClick}
@@ -104,7 +104,7 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
             </div>
           </div>
           <div className="flex-1 pt-4 pl-4 pb-4 pr-4 flex flex-col min-w-0 overflow-hidden h-full">
-            <div className="flex flex-col h-full" style={{ height: '144px' }}>
+            <div className="flex flex-col h-full" style={{ height: '112px' }}>
               <div className="flex-shrink-0">
                 <h3 className="font-bold text-base sm:text-lg mb-1 line-clamp-2 text-white group-hover:text-purple-300 transition-colors leading-tight">
                   {book.title}
