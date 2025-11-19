@@ -18,6 +18,7 @@ export function Library() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
   const [expandedImageBookId, setExpandedImageBookId] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Generate UUID v4
   const generateUUID = (): string => {
@@ -167,6 +168,19 @@ export function Library() {
     
     return () => {
       window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  // Handle scroll to hide/show header elements
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      setIsScrolled(scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -336,26 +350,40 @@ export function Library() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-4 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Sticky Header */}
-        <div className="sticky top-2 sm:top-4 z-40 pt-4 pb-4 mb-8 sm:mb-10 glass-dark backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl">
-          <div className="flex items-center justify-between px-4 sm:px-6">
-            <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-modern text-white text-glow pb-2">
+        {/* Sticky Header with Search and Tags */}
+        <div className="sticky top-2 sm:top-4 z-40 mb-4 sm:mb-6 glass-dark backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl transition-all duration-300">
+          <div className="px-4 sm:px-6 pt-3 sm:pt-4">
+            {/* Title - Hidden when scrolled */}
+            <div className={`flex items-center justify-between mb-3 transition-all duration-300 ${isScrolled ? 'opacity-0 h-0 overflow-hidden mb-0' : 'opacity-100'}`}>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-modern text-white text-glow">
                 Moje knihovna
               </h1>
-              <p className="text-sm sm:text-base text-gray-300 mt-1 mb-2">
-                {books.length} {books.length === 1 ? 'kniha' : books.length < 5 ? 'knihy' : 'knih'} ve vaší sbírce
-              </p>
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 hover:scale-110 active:scale-95 glow-sm flex-shrink-0"
+                title="Přidat knihu"
+              >
+                <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
             </div>
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 hover:scale-110 active:scale-95 glow-sm flex-shrink-0 self-center"
-              title="Přidat knihu"
-            >
-              <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
+            
+            {/* Search Bar - Always visible */}
+            <div className="mb-2 sm:mb-3">
+              <SearchBar onSearch={handleSearch} />
+            </div>
+            
+            {/* Tags - Hidden when scrolled */}
+            {!showAddForm && (
+              <div className={`transition-all duration-300 ${isScrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100 pb-1'}`}>
+                <TagFilter 
+                  books={books} 
+                  selectedTags={selectedTags}
+                  onTagToggle={handleTagToggle}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -385,21 +413,6 @@ export function Library() {
                 } as Book);
               }}
             />
-          </div>
-        )}
-
-        {!showAddForm && (
-          <div className="mb-6">
-            <div className="sticky top-[140px] sm:top-[160px] z-30 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 pt-2 pb-2 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 backdrop-blur-sm">
-              <SearchBar onSearch={handleSearch} />
-            </div>
-            <div className="mb-6">
-              <TagFilter 
-                books={books} 
-                selectedTags={selectedTags}
-                onTagToggle={handleTagToggle}
-              />
-            </div>
           </div>
         )}
 
@@ -468,6 +481,13 @@ export function Library() {
             onDelete={handleDeleteBook}
           />
         )}
+
+        {/* Book Count at Bottom */}
+        <div className="mt-12 sm:mt-16 pb-6 text-center">
+          <p className="text-sm sm:text-base text-gray-400">
+            {books.length} {books.length === 1 ? 'kniha' : books.length < 5 ? 'knihy' : 'knih'} ve vaší sbírce
+          </p>
+        </div>
       </div>
     </div>
   );

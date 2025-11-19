@@ -58,7 +58,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Hledat podle názvu, ISBN nebo autora..."
+            placeholder="Vyhledat knihu nebo ISBN"
             className="flex-1 min-w-0 px-2 py-2 bg-transparent border-0 focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base"
           />
           <button

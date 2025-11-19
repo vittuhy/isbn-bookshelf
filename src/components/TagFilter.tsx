@@ -45,7 +45,7 @@ export function TagFilter({ books, selectedTags, onTagToggle }: TagFilterProps) 
   }
 
   return (
-    <div className="mb-6 flex flex-wrap gap-2">
+    <div className="mb-6 flex flex-wrap gap-1.5 sm:gap-2">
       {allTags.map(tag => {
         const isSelected = selectedTags.includes(tag);
         const colorClass = getTagColor(tag);
@@ -53,7 +53,7 @@ export function TagFilter({ books, selectedTags, onTagToggle }: TagFilterProps) 
           <button
             key={tag}
             onClick={() => onTagToggle(tag)}
-            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 backdrop-blur-sm ${
+            className={`px-2 py-1 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 backdrop-blur-sm ${
               isSelected
                 ? colorClass + ' ring-2 ring-purple-400/50 shadow-lg shadow-purple-500/30 scale-105 border-2'
                 : colorClass + ' hover:shadow-md hover:scale-105 hover:border-opacity-50'
