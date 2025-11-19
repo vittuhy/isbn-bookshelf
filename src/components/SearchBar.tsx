@@ -49,7 +49,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   return (
     <>
       <div className="mb-0 relative">
-        <div className="flex items-center gap-2 glass-dark border border-white/20 rounded-2xl px-3 sm:px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500/50 focus-within:border-purple-400/50 focus-within:glow-sm transition-all duration-300">
+        <div className="flex items-center gap-2 glass-dark border border-white/20 rounded-2xl px-3 sm:px-4 py-2.5 focus-within:ring-2 focus-within:ring-purple-500/50 focus-within:border-purple-400/50 focus-within:glow-sm transition-all duration-300" style={{ minHeight: '44px' }}>
           <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
@@ -59,8 +59,15 @@ export function SearchBar({ onSearch }: SearchBarProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Vyhledat knihu nebo ISBN"
-            className="flex-1 min-w-0 px-2 py-0 bg-transparent border-0 focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base leading-normal"
-            style={{ lineHeight: '1.5', fontSize: '16px' }}
+            className="flex-1 min-w-0 px-2 bg-transparent border-0 focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base"
+            style={{ 
+              lineHeight: '1.5', 
+              fontSize: '16px', 
+              paddingTop: '0', 
+              paddingBottom: '0',
+              margin: '0',
+              height: 'auto'
+            }}
           />
           <button
             type="button"
