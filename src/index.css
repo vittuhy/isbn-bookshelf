@@ -10,9 +10,12 @@
   html {
     touch-action: manipulation;
     -ms-touch-action: manipulation;
-    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
+    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a) !important;
     min-height: 100vh;
     min-height: -webkit-fill-available;
+    height: 100%;
+    margin: 0;
+    padding: 0;
   }
   
   body {
@@ -27,12 +30,17 @@
     user-select: none;
     min-height: 100vh;
     min-height: -webkit-fill-available;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a) !important;
   }
   
   #root {
     min-height: 100vh;
     min-height: -webkit-fill-available;
-    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
+    height: 100%;
+    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a) !important;
   }
   
   /* Allow text selection in input fields and text areas */
