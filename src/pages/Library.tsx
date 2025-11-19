@@ -424,7 +424,7 @@ export function Library() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <p className="text-gray-300 text-xs sm:text-lg mb-3 sm:mb-6 leading-tight flex-1 flex items-center justify-center">
+              <p className="text-gray-300 text-xs sm:text-lg mb-3 sm:mb-6 leading-tight flex sm:flex-1 items-center justify-center">
                 {searchQuery.trim() 
                   ? `Nebyly nalezeny žádné knihy odpovídající "${searchQuery.trim()}".` 
                   : 'Vaše knihovna je prázdná. Přidejte svou první knihu výše!'}
@@ -446,7 +446,7 @@ export function Library() {
                       updatedAt: new Date().toISOString(),
                     } as Book);
                   }}
-                  className="w-3/4 mx-auto px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg sm:rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
+                  className="w-3/4 mx-auto mt-2 sm:mt-0 px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg sm:rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
                 >
                   Přidat ručně
                 </button>
