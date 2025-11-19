@@ -51,7 +51,8 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
 
   const handleImageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (hasImageUrl && !imageError && onImageExpand) {
+    e.preventDefault();
+    if (hasImageUrl && onImageExpand) {
       onImageExpand();
     }
   };
@@ -66,7 +67,7 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
   return (
     <div 
       className="glass-dark rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col relative w-full border border-white/20 hover:border-purple-400/50 hover:scale-[1.02] group cursor-pointer"
-      style={{ height: '152px' }}
+      style={isImageExpanded ? { minHeight: '300px' } : { height: '152px' }}
       onClick={handleCardClick}
     >
       {!isImageExpanded ? (
@@ -76,7 +77,7 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
               className="w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center relative cursor-pointer hover:opacity-90 transition-all duration-300 rounded-xl overflow-hidden border border-white/10 hover:border-purple-400/50 group-hover:scale-105"
               onClick={handleImageClick}
             >
-              {hasImageUrl ? (
+              {hasImageUrl && !imageError ? (
                 <img
                   key={`${book.id}-${book.imageUrl || book.coverUrl}-${book.updatedAt}`}
                   src={(() => {
@@ -87,7 +88,8 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
                     return `${imageUrl}${separator}_cb=${timestamp}`;
                   })()}
                   alt={book.title}
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="w-full h-full object-contain"
+                  style={{ padding: '2px' }}
                   loading="lazy"
                   onLoad={() => {
                     setImageError(false);
@@ -97,8 +99,7 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
                     setImageError(true);
                   }}
                 />
-              ) : null}
-              {(!hasImageUrl || imageError) && (
+              ) : (
                 <span className="text-gray-400 text-xs z-10 text-center px-1">Bez obálky</span>
               )}
             </div>
@@ -106,17 +107,17 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
           <div className="flex-1 pt-4 pl-4 pb-4 pr-4 flex flex-col min-w-0 overflow-hidden h-full">
             <div className="flex flex-col h-full" style={{ height: '112px' }}>
               <div className="flex-shrink-0">
-                <h3 className="font-bold text-base sm:text-lg mb-1 line-clamp-2 text-white group-hover:text-purple-300 transition-colors leading-tight">
+                <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-1 line-clamp-2 text-white group-hover:text-purple-300 transition-colors leading-tight">
                   {book.title}
                 </h3>
                 {book.authors && book.authors.length > 0 && (
-                  <p className="text-sm text-gray-300 mb-1 line-clamp-1 leading-tight">
+                  <p className="text-sm text-gray-300 mb-2 sm:mb-1 line-clamp-1 leading-tight">
                     {book.authors.join(', ')}
                   </p>
                 )}
                 {/* Show year only if there are no tags */}
                 {book.publishedYear && (!book.tags || book.tags.length === 0) && (
-                  <p className="text-sm sm:text-base text-purple-300 font-bold leading-tight">{book.publishedYear}</p>
+                  <p className="text-sm sm:text-base text-purple-300 font-bold leading-tight mt-1 sm:mt-0">{book.publishedYear}</p>
                 )}
               </div>
               {/* Tags display - aligned with bottom of image */}
@@ -137,10 +138,10 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
         </div>
       ) : (
         /* Expanded image view within card */
-        <div className="relative w-full h-full min-h-[300px] flex items-center justify-center p-4">
+        <div className="relative w-full min-h-[300px] flex items-center justify-center p-4">
           <button
             onClick={handleCloseImage}
-            className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-purple-500/30 backdrop-blur-sm border border-white/20 hover:border-purple-400/50 transition-all duration-300 hover:scale-110 active:scale-95"
+            className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-r from-pink-600/90 to-purple-600/90 hover:from-pink-500 hover:to-purple-500 backdrop-blur-sm border border-pink-400/50 hover:border-pink-300 transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg"
             title="Zavřít"
           >
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
