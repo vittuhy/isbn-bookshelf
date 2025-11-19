@@ -125,16 +125,6 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
     });
     setCurrentTags(book?.tags || []);
     setTagInput('');
-    
-    // Scroll to ISBN field on mobile when dialog opens
-    if (book) {
-      setTimeout(() => {
-        const isbnElement = document.getElementById('isbn-section') || document.getElementById('isbn13-input');
-        if (isbnElement && window.innerWidth < 640) {
-          isbnElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-      }, 100);
-    }
   }, [book]);
 
   // Handle adding tag from input
@@ -193,7 +183,7 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300" style={{ touchAction: 'none' }}>
-      <div className="glass-dark rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[90vh] sm:max-h-[90vh] flex flex-col border border-white/20 shadow-2xl" style={{ touchAction: 'pan-y' }}>
+      <div className="glass-dark rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[85vh] sm:max-h-[90vh] flex flex-col border border-white/20 shadow-2xl" style={{ touchAction: 'pan-y' }}>
         <div className="flex justify-between items-center p-3 sm:p-6 border-b border-white/10 flex-shrink-0">
             <h2 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{book && book.id ? 'Detail knihy' : 'Přidat knihu ručně'}</h2>
           <button
@@ -205,8 +195,8 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
             </svg>
           </button>
         </div>
-        <div className="p-3 sm:p-6 overflow-y-auto flex-1 min-h-0">
-          <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4 pb-2">
+        <div className="p-3 sm:p-6 overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4">
             <div className="grid grid-cols-2 gap-2 sm:gap-4">
               <div className="col-span-2">
                 <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">Název <span className="text-red-400">*</span></label>
@@ -337,7 +327,7 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
               </div>
               {/* ISBN fields - editable for new books, read-only for existing books */}
               {(!book || !book.id) ? (
-                <div className="col-span-2 border-t border-white/10 pt-2 sm:pt-4 scroll-mt-4">
+                <div className="col-span-2 border-t border-white/10 pt-2 sm:pt-4">
                   <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">ISBN-13</label>
                   <input
                     type="tel"
@@ -348,11 +338,10 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
                     placeholder="978-80-257-4767-4 nebo 9788025747674"
                     className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-white/5 border border-white/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
                     style={{ fontSize: '16px' }}
-                    id="isbn13-input"
                   />
                 </div>
               ) : (
-                <div className="col-span-2 border-t border-white/10 pt-2 sm:pt-4 scroll-mt-4" id="isbn-section">
+                <div className="col-span-2 border-t border-white/10 pt-2 sm:pt-4">
                   <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">ISBN</label>
                   <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div className="glass-dark p-3 rounded-xl border border-white/10">
