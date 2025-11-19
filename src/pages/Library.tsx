@@ -337,8 +337,8 @@ export function Library() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-4 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Sticky Header */}
-        <div className="sticky top-0 z-40 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 mb-8 sm:mb-10 glass-dark backdrop-blur-xl border-b border-white/10">
-          <div className="flex items-center justify-between">
+        <div className="sticky top-2 sm:top-4 z-40 pt-4 pb-4 mb-8 sm:mb-10 glass-dark backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl">
+          <div className="flex items-center justify-between px-4 sm:px-6">
             <div className="flex-1">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-modern text-white text-glow pb-2">
                 Moje knihovna

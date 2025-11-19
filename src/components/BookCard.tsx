@@ -65,12 +65,13 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
 
   return (
     <div 
-      className="glass-dark rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full relative w-full border border-white/20 hover:border-purple-400/50 hover:scale-[1.02] group cursor-pointer"
+      className="glass-dark rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col relative w-full border border-white/20 hover:border-purple-400/50 hover:scale-[1.02] group cursor-pointer"
+      style={{ height: '152px' }}
       onClick={handleCardClick}
     >
       {!isImageExpanded ? (
-        <div className="flex flex-1">
-          <div className="flex flex-col items-start flex-shrink-0 relative pt-4 pl-4 pb-4">
+        <div className="flex flex-1 h-full">
+          <div className="flex flex-col items-start flex-shrink-0 relative pt-4 pl-4 pb-4 h-full justify-center">
             <div 
               className="w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center relative cursor-pointer hover:opacity-90 transition-all duration-300 rounded-xl overflow-hidden border border-white/10 hover:border-purple-400/50 group-hover:scale-105"
               onClick={handleImageClick}
@@ -102,19 +103,20 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
               )}
             </div>
           </div>
-          <div className="flex-1 pt-4 pl-4 pb-4 pr-4 flex flex-col min-w-0 overflow-hidden">
-            <div className="flex flex-col flex-1">
+          <div className="flex-1 pt-4 pl-4 pb-4 pr-4 flex flex-col min-w-0 overflow-hidden h-full">
+            <div className="flex flex-col h-full" style={{ height: '144px' }}>
               <div className="flex-shrink-0">
-                <h3 className="font-bold text-base sm:text-lg mb-1.5 line-clamp-2 text-white group-hover:text-purple-300 transition-colors">
+                <h3 className="font-bold text-base sm:text-lg mb-1 line-clamp-2 text-white group-hover:text-purple-300 transition-colors leading-tight">
                   {book.title}
                 </h3>
                 {book.authors && book.authors.length > 0 && (
-                  <p className="text-sm text-gray-300 mb-2 line-clamp-1">
+                  <p className="text-sm text-gray-300 mb-1 line-clamp-1 leading-tight">
                     {book.authors.join(', ')}
                   </p>
                 )}
-                {book.publishedYear && (
-                  <p className="text-sm sm:text-base text-purple-300 font-bold mb-2">{book.publishedYear}</p>
+                {/* Show year only if there are no tags */}
+                {book.publishedYear && (!book.tags || book.tags.length === 0) && (
+                  <p className="text-sm sm:text-base text-purple-300 font-bold leading-tight">{book.publishedYear}</p>
                 )}
               </div>
               {/* Tags display - aligned with bottom of image */}
@@ -123,7 +125,7 @@ export function BookCard({ book, onEdit, isImageExpanded = false, onImageExpand,
                   {book.tags.map(tag => (
                     <span
                       key={tag}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium ${getTagColor(tag)} backdrop-blur-sm`}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium ${getTagColor(tag)} backdrop-blur-sm line-clamp-1`}
                     >
                       {tag}
                     </span>

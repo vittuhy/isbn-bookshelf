@@ -188,9 +188,11 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
             <h2 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{book && book.id ? 'Detail knihy' : 'Přidat knihu ručně'}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-3xl transition-colors hover:scale-110 active:scale-95 w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-red-500/20"
+            className="text-gray-400 hover:text-white transition-colors hover:scale-110 active:scale-95 w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-red-500/20"
           >
-            ×
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
         <div className="p-3 sm:p-6 overflow-y-auto flex-1">
