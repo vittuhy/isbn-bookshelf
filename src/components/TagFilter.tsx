@@ -6,18 +6,18 @@ interface TagFilterProps {
   onTagToggle: (tag: string) => void;
 }
 
-// Modern color palette for tags - sophisticated and contemporary
+// Modern dark color palette for tags - vibrant and contemporary
 const TAG_COLORS = [
-  'bg-slate-100 text-slate-700 border border-slate-300',
-  'bg-blue-50 text-blue-700 border border-blue-200',
-  'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  'bg-purple-50 text-purple-700 border border-purple-200',
-  'bg-pink-50 text-pink-700 border border-pink-200',
-  'bg-amber-50 text-amber-700 border border-amber-200',
-  'bg-indigo-50 text-indigo-700 border border-indigo-200',
-  'bg-rose-50 text-rose-700 border border-rose-200',
-  'bg-cyan-50 text-cyan-700 border border-cyan-200',
-  'bg-violet-50 text-violet-700 border border-violet-200',
+  'bg-purple-500/20 text-purple-300 border border-purple-400/30',
+  'bg-blue-500/20 text-blue-300 border border-blue-400/30',
+  'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30',
+  'bg-pink-500/20 text-pink-300 border border-pink-400/30',
+  'bg-amber-500/20 text-amber-300 border border-amber-400/30',
+  'bg-indigo-500/20 text-indigo-300 border border-indigo-400/30',
+  'bg-rose-500/20 text-rose-300 border border-rose-400/30',
+  'bg-cyan-500/20 text-cyan-300 border border-cyan-400/30',
+  'bg-violet-500/20 text-violet-300 border border-violet-400/30',
+  'bg-orange-500/20 text-orange-300 border border-orange-400/30',
 ];
 
 function getTagColor(tag: string): string {
@@ -53,10 +53,10 @@ export function TagFilter({ books, selectedTags, onTagToggle }: TagFilterProps) 
           <button
             key={tag}
             onClick={() => onTagToggle(tag)}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 backdrop-blur-sm ${
               isSelected
-                ? colorClass + ' ring-2 ring-offset-2 ring-slate-400 shadow-md scale-105'
-                : colorClass + ' hover:shadow-md hover:scale-105'
+                ? colorClass + ' ring-2 ring-purple-400/50 shadow-lg shadow-purple-500/30 scale-105 border-2'
+                : colorClass + ' hover:shadow-md hover:scale-105 hover:border-opacity-50'
             }`}
           >
             {tag}

@@ -116,22 +116,22 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-md w-full flex flex-col">
-        <div className="flex justify-between items-center p-4 border-b">
-          <h3 className="text-lg font-bold">Skenovat ISBN</h3>
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+      <div className="glass-dark rounded-3xl max-w-md w-full flex flex-col border border-white/20 shadow-2xl">
+        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/10">
+          <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Skenovat ISBN</h3>
           <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-gray-400 hover:text-white text-3xl transition-colors hover:scale-110 active:scale-95 w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-red-500/20"
           >
             ×
           </button>
         </div>
-        <div className="p-4 flex flex-col items-center">
+        <div className="p-4 sm:p-6 flex flex-col items-center">
           <div className="relative w-full max-w-sm" style={{ minHeight: '300px' }}>
             <video
               ref={videoRef}
-              className="w-full rounded-lg"
+              className="w-full rounded-2xl border border-white/10"
               style={{ 
                 maxHeight: '400px', 
                 minHeight: '300px',
@@ -142,7 +142,7 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
             {scanning && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div 
-                  className="border-2 border-blue-500 rounded-lg" 
+                  className="border-2 border-purple-400 rounded-xl shadow-lg shadow-purple-500/50" 
                   style={{ 
                     width: '80%', 
                     height: '200px',
@@ -154,12 +154,12 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
             )}
           </div>
           {error && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg w-full">
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="mt-4 p-3 bg-red-500/20 border border-red-400/30 rounded-xl w-full backdrop-blur-sm">
+              <p className="text-sm text-red-300">{error}</p>
             </div>
           )}
           {scanning && !error && (
-            <p className="mt-4 text-sm text-gray-600 text-center">
+            <p className="mt-4 text-sm text-gray-300 text-center">
               Namiřte kameru na čárový kód ISBN
             </p>
           )}

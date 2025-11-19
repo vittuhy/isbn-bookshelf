@@ -49,19 +49,22 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   return (
     <>
       <div className="mb-6 relative">
-        <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 focus-within:ring-2 focus-within:ring-blue-500">
+        <div className="flex items-center gap-2 glass-dark border border-white/20 rounded-2xl px-3 sm:px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500/50 focus-within:border-purple-400/50 focus-within:glow-sm transition-all duration-300">
+          <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Hledat podle názvu, ISBN nebo autora..."
-            className="flex-1 min-w-0 px-2 py-2 border-0 focus:outline-none"
+            className="flex-1 min-w-0 px-2 py-2 bg-transparent border-0 focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base"
           />
           <button
             type="button"
             onClick={() => setShowScanner(true)}
-            className="flex-shrink-0 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
+            className="flex-shrink-0 p-2 text-gray-400 hover:text-purple-300 hover:bg-purple-500/20 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95"
             title="Skenovat čárový kód"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -73,7 +76,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
               type="button"
               onClick={handleClear}
               onMouseDown={(e) => e.preventDefault()} // Prevent blur on mousedown
-              className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="flex-shrink-0 p-2 text-gray-400 hover:text-white hover:bg-red-500/20 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95"
               title="Vymazat"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -77,8 +77,8 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
   return (
     <>
       <form onSubmit={handleSubmit} className="mb-0">
-        <div className="flex gap-2">
-          <div className="flex-1 min-w-0 flex items-center gap-2 border border-gray-300 rounded-lg px-2 focus-within:ring-2 focus-within:ring-blue-500">
+        <div className="flex gap-2 sm:gap-3">
+          <div className="flex-1 min-w-0 flex items-center gap-2 glass-dark border border-white/20 rounded-xl px-3 sm:px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500/50 focus-within:border-purple-400/50 focus-within:glow-sm transition-all duration-300">
             <input
               type="tel"
               inputMode="numeric"
@@ -86,7 +86,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
               value={isbn}
               onChange={(e) => setIsbn(e.target.value)}
               placeholder="Zadejte ISBN"
-              className="flex-1 min-w-0 px-2 py-2 border-0 focus:outline-none"
+              className="flex-1 min-w-0 px-2 py-2 border-0 focus:outline-none bg-transparent text-white placeholder-gray-400 text-sm sm:text-base"
               disabled={loading}
               autoFocus
             />
@@ -94,7 +94,7 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
               type="button"
               onClick={() => setShowScanner(true)}
               disabled={loading}
-              className="flex-shrink-0 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
+              className="flex-shrink-0 p-2 text-gray-400 hover:text-purple-300 hover:bg-purple-500/20 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 disabled:opacity-50"
               title="Skenovat čárový kód"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -105,38 +105,38 @@ export function AddBookForm({ onAdd, onManualAdd }: AddBookFormProps) {
           <button
             type="submit"
             disabled={loading || !isbn.trim()}
-            className="flex-shrink-0 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+            className="flex-shrink-0 px-5 sm:px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-500 hover:to-pink-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95 font-medium text-sm sm:text-base"
           >
             {loading ? 'Vyhledávání...' : 'Přidat'}
           </button>
         </div>
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-3 flex items-center gap-2">
         <input
           type="checkbox"
           id="useGoogleSearchOnly"
           checked={useGoogleSearchOnly}
           onChange={(e) => setUseGoogleSearchOnly(e.target.checked)}
           disabled={loading}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          className="w-4 h-4 text-purple-600 border-white/20 rounded focus:ring-purple-500 bg-white/5 checked:bg-purple-600"
         />
         <label
           htmlFor="useGoogleSearchOnly"
-          className="text-sm text-gray-700 cursor-pointer select-none"
+          className="text-sm text-gray-300 cursor-pointer select-none"
         >
           Použít pouze Google Search
         </label>
       </div>
       {error && (
-        <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-700 font-medium">{error}</p>
+        <div className="mt-3 p-3 bg-red-500/20 border border-red-400/30 rounded-xl backdrop-blur-sm">
+          <p className="text-sm text-red-300 font-medium">{error}</p>
         </div>
       )}
       {onManualAdd && (
-        <div className="mt-1 mb-0 pb-0">
+        <div className="mt-3 mb-0 pb-0">
           <button
             type="button"
             onClick={onManualAdd}
-            className="text-sm text-blue-600 hover:text-blue-800 underline"
+            className="text-sm text-purple-300 hover:text-purple-200 underline transition-colors"
           >
             Přidat ručně
           </button>

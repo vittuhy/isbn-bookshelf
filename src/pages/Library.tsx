@@ -17,6 +17,7 @@ export function Library() {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
+  const [expandedImageBookId, setExpandedImageBookId] = useState<string | null>(null);
 
   // Generate UUID v4
   const generateUUID = (): string => {
@@ -333,35 +334,38 @@ export function Library() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-4 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-4xl font-bold text-gray-900">Moje knihovna</h1>
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-40 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 pt-4 pb-4 mb-8 sm:mb-10 glass-dark backdrop-blur-xl border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-modern text-white text-glow pb-2">
+                Moje knihovna
+              </h1>
+              <p className="text-sm sm:text-base text-gray-300 mt-1 mb-2">
+                {books.length} {books.length === 1 ? 'kniha' : books.length < 5 ? 'knihy' : 'knih'} ve vaší sbírce
+              </p>
+            </div>
             <button
               onClick={() => setShowAddForm(!showAddForm)}
-              className="w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-md"
+              className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 hover:scale-110 active:scale-95 glow-sm flex-shrink-0 self-center"
               title="Přidat knihu"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
               </svg>
             </button>
-          </div>
-          <div className="flex items-center gap-3">
-            <p className="text-gray-600">
-              {books.length} {books.length === 1 ? 'kniha' : books.length < 5 ? 'knihy' : 'knih'} ve vaší sbírce
-            </p>
           </div>
         </div>
 
         {showAddForm && (
-          <div className="bg-white rounded-lg shadow p-6 pb-4 mb-6 relative">
+          <div className="glass-dark rounded-2xl shadow-2xl p-4 sm:p-6 mb-6 relative border border-white/20 animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Přidat novou knihu</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-white">Přidat novou knihu</h2>
               <button
                 onClick={() => setShowAddForm(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-gray-400 hover:text-white text-3xl transition-colors hover:scale-110 active:scale-95"
                 title="Zavřít"
               >
                 ×
@@ -396,42 +400,48 @@ export function Library() {
         )}
 
         {filteredBooks.length === 0 ? (
-          <div className="text-center py-4 sm:py-12">
-            <p className="text-gray-500 text-base sm:text-lg">
-              {searchQuery.trim() 
-                ? `Nebyly nalezeny žádné knihy odpovídající "${searchQuery.trim()}".` 
-                : 'Vaše knihovna je prázdná. Přidejte svou první knihu výše!'}
-            </p>
-            {searchQuery.trim() && (
-              <button
-                onClick={() => {
-                  // Open manual addition dialog with prefilled data
-                  setShowAddForm(false);
-                  const trimmedQuery = searchQuery.trim();
-                  // Check if search term is numeric (ISBN) or text (title)
-                  const isNumeric = /^\d+$/.test(trimmedQuery.replace(/\D/g, ''));
-                  
-                  setEditingBook({
-                    id: '',
-                    isbn13: isNumeric ? trimmedQuery.replace(/\D/g, '') : '',
-                    title: isNumeric ? '' : trimmedQuery,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                  } as Book);
-                }}
-                className="mt-3 sm:mt-4 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Přidat ručně
-              </button>
-            )}
+          <div className="text-center py-12 sm:py-20">
+            <div className="glass-dark rounded-3xl p-8 sm:p-12 max-w-md mx-auto border border-white/20">
+              <div className="text-6xl sm:text-7xl mb-4">📚</div>
+              <p className="text-gray-300 text-base sm:text-lg mb-6">
+                {searchQuery.trim() 
+                  ? `Nebyly nalezeny žádné knihy odpovídající "${searchQuery.trim()}".` 
+                  : 'Vaše knihovna je prázdná. Přidejte svou první knihu výše!'}
+              </p>
+              {searchQuery.trim() && (
+                <button
+                  onClick={() => {
+                    // Open manual addition dialog with prefilled data
+                    setShowAddForm(false);
+                    const trimmedQuery = searchQuery.trim();
+                    // Check if search term is numeric (ISBN) or text (title)
+                    const isNumeric = /^\d+$/.test(trimmedQuery.replace(/\D/g, ''));
+                    
+                    setEditingBook({
+                      id: '',
+                      isbn13: isNumeric ? trimmedQuery.replace(/\D/g, '') : '',
+                      title: isNumeric ? '' : trimmedQuery,
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                    } as Book);
+                  }}
+                  className="px-6 py-3 text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
+                >
+                  Přidat ručně
+                </button>
+              )}
+            </div>
           </div>
         ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {filteredBooks.map((book) => (
                   <BookCard
                     key={book.id}
                     book={book}
                     onEdit={handleEditBook}
+                    isImageExpanded={expandedImageBookId === book.id}
+                    onImageExpand={() => setExpandedImageBookId(book.id)}
+                    onImageClose={() => setExpandedImageBookId(null)}
                   />
                 ))}
               </div>
