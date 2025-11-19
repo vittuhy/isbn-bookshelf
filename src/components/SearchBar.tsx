@@ -59,7 +59,8 @@ export function SearchBar({ onSearch }: SearchBarProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Vyhledat knihu nebo ISBN"
-            className="flex-1 min-w-0 px-2 py-2 bg-transparent border-0 focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base"
+            className="flex-1 min-w-0 px-2 py-0 bg-transparent border-0 focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base leading-normal"
+            style={{ lineHeight: '1.5', fontSize: '16px' }}
           />
           <button
             type="button"

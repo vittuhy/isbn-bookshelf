@@ -352,7 +352,7 @@ export function Library() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ paddingTop: `max(1rem, env(safe-area-inset-top))`, paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
         {/* Sticky Header with Search and Tags */}
         <div className="sticky z-40 mb-4 sm:mb-6 glass-dark backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl transition-all duration-500 ease-in-out" style={{ top: `max(0.5rem, env(safe-area-inset-top))`, willChange: 'transform' }}>
-          <div className={`px-4 sm:px-6 relative transition-all duration-500 ease-in-out ${isScrolled ? 'py-4 sm:py-6' : 'pt-3 sm:pt-4 pb-3 sm:pb-4'}`}>
+          <div className={`px-4 sm:px-6 relative transition-all duration-500 ease-in-out ${isScrolled ? 'py-4 sm:py-6' : 'pt-3 sm:pt-4 pb-4 sm:pb-5'}`}>
             {/* Title - Hidden when scrolled */}
             <div className={`flex items-center justify-between transition-all duration-500 ease-in-out ${isScrolled ? 'opacity-0 max-h-0 overflow-hidden mb-0' : 'opacity-100 max-h-32 mb-3'}`}>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-modern text-white text-glow">
@@ -370,13 +370,13 @@ export function Library() {
             </div>
             
             {/* Search Bar - Always visible */}
-            <div className={`transition-all duration-500 ease-in-out ${isScrolled ? 'mb-0' : 'mb-2 sm:mb-3'}`}>
+            <div className={`transition-all duration-500 ease-in-out ${isScrolled ? 'mb-0' : 'mb-4 sm:mb-5'}`}>
               <SearchBar onSearch={handleSearch} />
             </div>
             
             {/* Tags - Hidden when scrolled */}
             {!showAddForm && (
-              <div className={`transition-all duration-500 ease-in-out ${isScrolled ? 'opacity-0 max-h-0 overflow-hidden' : 'opacity-100 max-h-20 pb-1'}`}>
+              <div className={`transition-all duration-500 ease-in-out ${isScrolled ? 'opacity-0 max-h-0 overflow-hidden' : 'opacity-100 max-h-20 mt-4 sm:mt-5'}`}>
                 <TagFilter 
                   books={books} 
                   selectedTags={selectedTags}

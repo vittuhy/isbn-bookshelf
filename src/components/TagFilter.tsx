@@ -45,7 +45,7 @@ export function TagFilter({ books, selectedTags, onTagToggle }: TagFilterProps) 
   }
 
   return (
-    <div className="mb-6 flex flex-wrap gap-1.5 sm:gap-2">
+    <div className="mb-0 flex flex-wrap gap-1.5 sm:gap-2">
       {allTags.map(tag => {
         const isSelected = selectedTags.includes(tag);
         const colorClass = getTagColor(tag);
