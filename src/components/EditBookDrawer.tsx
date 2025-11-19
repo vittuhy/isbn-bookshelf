@@ -183,9 +183,9 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300" style={{ touchAction: 'none' }}>
-      <div className="glass-dark rounded-3xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] flex flex-col border border-white/20 shadow-2xl" style={{ touchAction: 'pan-y' }}>
-        <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/10 flex-shrink-0">
-            <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{book && book.id ? 'Detail knihy' : 'Přidat knihu ručně'}</h2>
+      <div className="glass-dark rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[85vh] sm:max-h-[90vh] flex flex-col border border-white/20 shadow-2xl" style={{ touchAction: 'pan-y' }}>
+        <div className="flex justify-between items-center p-3 sm:p-6 border-b border-white/10 flex-shrink-0">
+            <h2 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{book && book.id ? 'Detail knihy' : 'Přidat knihu ručně'}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white text-3xl transition-colors hover:scale-110 active:scale-95 w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-red-500/20"
@@ -193,69 +193,69 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
             ×
           </button>
         </div>
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="p-3 sm:p-6 overflow-y-auto flex-1">
+          <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4">
               <div className="col-span-2">
-                <label className="block text-sm font-medium mb-2 text-gray-300">Název <span className="text-red-400">*</span></label>
+                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">Název <span className="text-red-400">*</span></label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
-                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-white/5 border border-white/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
                   style={{ fontSize: '16px' }}
                   autoFocus={!book || !book.id}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2 text-gray-300">Autoři (oddělené čárkou)</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">Autoři (oddělené čárkou)</label>
                 <input
                   type="text"
                   value={formData.authors}
                   onChange={(e) => setFormData({ ...formData, authors: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-white/5 border border-white/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
                   style={{ fontSize: '16px' }}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2 text-gray-300">Nakladatel</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">Nakladatel</label>
                 <input
                   type="text"
                   value={formData.publisher}
                   onChange={(e) => setFormData({ ...formData, publisher: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-white/5 border border-white/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
                   style={{ fontSize: '16px' }}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2 text-gray-300">Rok vydání</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">Rok vydání</label>
                 <input
                   type="number"
                   value={formData.publishedYear}
                   onChange={(e) => setFormData({ ...formData, publishedYear: e.target.value })}
-                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-white/5 border border-white/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
                   style={{ fontSize: '16px' }}
                 />
               </div>
               <div className="col-span-2">
-                <label className="block text-sm font-medium mb-2 text-gray-300">URL obrázku</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">URL obrázku</label>
                 <div className="flex gap-2">
                   <input
                     type="url"
                     value={formData.imageUrl}
                     onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                     placeholder="https://example.com/image.jpg"
-                    className="flex-1 px-4 py-3 text-sm bg-white/5 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
+                    className="flex-1 px-3 py-2 sm:px-4 sm:py-3 text-sm bg-white/5 border border-white/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
                     style={{ fontSize: '16px' }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowImageUpload(true)}
-                    className="px-4 py-3 text-sm bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 whitespace-nowrap flex items-center justify-center shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
+                    className="px-3 py-2 sm:px-4 sm:py-3 text-sm bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg sm:rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 whitespace-nowrap flex items-center justify-center shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
                     title="Pořídit nebo vybrat obrázek"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -263,11 +263,11 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
                 </div>
               </div>
               <div className="col-span-2">
-                <label className="block text-sm font-medium mb-2 text-gray-300">Tagy</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">Tagy</label>
                 {/* Combined input with tags inside and available tags below */}
-                <div className="border border-white/20 rounded-xl focus-within:ring-2 focus-within:ring-purple-500/50 focus-within:border-purple-400/50 transition-all bg-white/5">
+                <div className="border border-white/20 rounded-lg sm:rounded-xl focus-within:ring-2 focus-within:ring-purple-500/50 focus-within:border-purple-400/50 transition-all bg-white/5">
                   {/* Tags and input field in the same container */}
-                  <div className="flex flex-wrap gap-2 items-center p-3 min-h-[50px]">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center p-2 sm:p-3 min-h-[40px] sm:min-h-[50px]">
                     {currentTags.map(tag => (
                       <span
                         key={tag}
@@ -314,19 +314,19 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
                 </div>
               </div>
               <div className="col-span-2">
-                <label className="block text-sm font-medium mb-2 text-gray-300">Popis</label>
+                <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">Popis</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 resize-none text-white placeholder-gray-400 transition-all"
+                  rows={2}
+                  className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-white/5 border border-white/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 resize-none text-white placeholder-gray-400 transition-all"
                   style={{ fontSize: '16px' }}
                 />
               </div>
               {/* ISBN fields - editable for new books, read-only for existing books */}
               {(!book || !book.id) ? (
-                <div className="col-span-2 border-t border-white/10 pt-4">
-                  <label className="block text-sm font-medium mb-2 text-gray-300">ISBN-13</label>
+                <div className="col-span-2 border-t border-white/10 pt-2 sm:pt-4">
+                  <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">ISBN-13</label>
                   <input
                     type="tel"
                     inputMode="numeric"
@@ -334,13 +334,13 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
                     value={formData.isbn13}
                     onChange={(e) => setFormData({ ...formData, isbn13: e.target.value })}
                     placeholder="978-80-257-4767-4 nebo 9788025747674"
-                    className="w-full px-4 py-3 text-sm bg-white/5 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
+                    className="w-full px-3 py-2 sm:px-4 sm:py-3 text-sm bg-white/5 border border-white/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 text-white placeholder-gray-400 transition-all"
                     style={{ fontSize: '16px' }}
                   />
                 </div>
               ) : (
-                <div className="col-span-2 border-t border-white/10 pt-4">
-                  <label className="block text-sm font-medium mb-2 text-gray-300">ISBN</label>
+                <div className="col-span-2 border-t border-white/10 pt-2 sm:pt-4">
+                  <label className="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-300">ISBN</label>
                   <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div className="glass-dark p-3 rounded-xl border border-white/10">
                       <span className="text-xs text-gray-400 block mb-1">ISBN-13:</span>
@@ -358,7 +358,7 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
             </div>
           </form>
         </div>
-        <div className="flex gap-3 sm:gap-4 justify-between p-4 sm:p-6 border-t border-white/10 flex-shrink-0">
+        <div className="flex gap-2 sm:gap-4 justify-between p-3 sm:p-6 border-t border-white/10 flex-shrink-0">
           <div>
             {onDelete && book && book.id && (
               <button
@@ -371,24 +371,24 @@ export function EditBookDrawer({ book, allBooks = [], onClose, onSave, onDelete 
                     onClose();
                   }
                 }}
-                className="px-5 py-2.5 text-sm font-medium bg-red-600/80 text-white rounded-xl hover:bg-red-600 transition-all duration-300 shadow-lg hover:shadow-red-500/30 hover:scale-105 active:scale-95"
+                className="px-3 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium bg-red-600/80 text-white rounded-lg sm:rounded-xl hover:bg-red-600 transition-all duration-300 shadow-lg hover:shadow-red-500/30 hover:scale-105 active:scale-95"
               >
                 Smazat
               </button>
             )}
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-medium border border-white/20 rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-all duration-300"
+              className="px-3 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium border border-white/20 rounded-lg sm:rounded-xl hover:bg-white/10 text-gray-300 hover:text-white transition-all duration-300"
             >
               Zrušit
             </button>
             <button
               type="submit"
               onClick={handleSubmit}
-              className="px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
+              className="px-3 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg sm:rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
             >
               Uložit
             </button>
