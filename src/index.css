@@ -10,6 +10,9 @@
   html {
     touch-action: manipulation;
     -ms-touch-action: manipulation;
+    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
   }
   
   body {
@@ -22,6 +25,14 @@
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  
+  #root {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
   }
   
   /* Allow text selection in input fields and text areas */

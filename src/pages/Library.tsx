@@ -348,7 +348,7 @@ export function Library() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-4 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-4 sm:py-8" style={{ paddingTop: `max(1rem, env(safe-area-inset-top))` }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Sticky Header with Search and Tags */}
         <div className="sticky top-2 sm:top-4 z-40 mb-4 sm:mb-6 glass-dark backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl transition-all duration-300">
