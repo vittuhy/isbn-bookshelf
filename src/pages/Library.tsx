@@ -392,6 +392,8 @@ export function Library() {
           <div className="mb-6">
             <div className="sticky top-[140px] sm:top-[160px] z-30 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 pt-2 pb-2 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 backdrop-blur-sm">
               <SearchBar onSearch={handleSearch} />
+            </div>
+            <div className="mb-6">
               <TagFilter 
                 books={books} 
                 selectedTags={selectedTags}
