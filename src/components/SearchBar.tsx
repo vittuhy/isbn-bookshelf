@@ -18,34 +18,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     return () => clearTimeout(timer);
   }, [query, onSearch]);
 
-  // Fix cursor alignment on iOS when keyboard appears
-  useEffect(() => {
-    const input = inputRef.current;
-    if (!input) return;
 
-    const handleFocus = () => {
-      // Force a reflow to ensure proper alignment
-      requestAnimationFrame(() => {
-        // Reset any transform that might affect alignment
-        input.style.transform = 'translateY(0)';
-        input.style.webkitTransform = 'translateY(0)';
-      });
-    };
-
-    const handleBlur = () => {
-      // Reset on blur
-      input.style.transform = '';
-      input.style.webkitTransform = '';
-    };
-
-    input.addEventListener('focus', handleFocus);
-    input.addEventListener('blur', handleBlur);
-    
-    return () => {
-      input.removeEventListener('focus', handleFocus);
-      input.removeEventListener('blur', handleBlur);
-    };
-  }, []);
 
 
   const handleClear = (e: React.MouseEvent) => {
@@ -91,11 +64,11 @@ export function SearchBar({ onSearch }: SearchBarProps) {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Vyhledat knihu nebo ISBN"
               className="w-full px-2 bg-transparent border-0 focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base"
-              style={{ 
-                fontSize: '16px', 
-                lineHeight: '1.5',
-                paddingTop: '0',
-                paddingBottom: '0',
+              style={{
+                fontSize: '16px',
+                lineHeight: 'normal',
+                height: '100%',
+                padding: '0',
                 margin: '0',
                 border: 'none',
                 outline: 'none',
@@ -112,7 +85,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
             title="Skenovat čárový kód"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M2 6h2v12H2V6zm3 0h1v12H5V6zm2 0h3v12H7V6zm4 0h1v12h-1V6zm3 0h2v12h-2V6zm3 0h1v12h-1V6zm2 0h3v12h-3V6zm4 0h1v12h-1V6z"/>
+              <path d="M2 6h2v12H2V6zm3 0h1v12H5V6zm2 0h3v12H7V6zm4 0h1v12h-1V6zm3 0h2v12h-2V6zm3 0h1v12h-1V6zm2 0h3v12h-3V6zm4 0h1v12h-1V6z" />
             </svg>
           </button>
           {query && (
