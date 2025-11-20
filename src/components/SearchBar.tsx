@@ -28,14 +28,14 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       requestAnimationFrame(() => {
         // Reset any transform that might affect alignment
         input.style.transform = 'translateY(0)';
-        input.style.WebkitTransform = 'translateY(0)';
+        input.style.webkitTransform = 'translateY(0)';
       });
     };
 
     const handleBlur = () => {
       // Reset on blur
       input.style.transform = '';
-      input.style.WebkitTransform = '';
+      input.style.webkitTransform = '';
     };
 
     input.addEventListener('focus', handleFocus);
