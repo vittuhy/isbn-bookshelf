@@ -10,16 +10,16 @@
   html {
     touch-action: manipulation;
     -ms-touch-action: manipulation;
-    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
     min-height: 100vh;
     min-height: -webkit-fill-available;
     height: 100%;
     margin: 0;
     padding: 0;
+    background: transparent;
   }
 
   body {
-    @apply bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-gray-100;
+    color: rgb(243 244 246);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -33,8 +33,8 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    /* With viewport-fit=cover, this background automatically extends into safe area */
-    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a) !important;
+    background-color: transparent;
+    background: transparent;
   }
 
   #root {
@@ -42,7 +42,10 @@
     min-height: -webkit-fill-available;
     height: 100%;
     position: relative;
+    background-color: transparent;
   }
+
+  /* Background already set in critical CSS in HTML head */
 
   /* Allow text selection in input fields and text areas */
   input,
