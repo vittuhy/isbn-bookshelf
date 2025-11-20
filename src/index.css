@@ -36,6 +36,11 @@
     min-height: -webkit-fill-available;
     height: 100%;
     margin: 0;
+    /* Compensate for html padding so content doesn't shift */
+    margin-top: calc(0px - env(safe-area-inset-top));
+    margin-left: calc(0px - env(safe-area-inset-left));
+    margin-right: calc(0px - env(safe-area-inset-right));
+    margin-bottom: calc(0px - env(safe-area-inset-bottom));
     padding: 0;
     background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a) !important;
   }
@@ -45,20 +50,6 @@
     min-height: -webkit-fill-available;
     height: 100%;
     position: relative;
-  }
-
-  /* Ensure background extends into safe area */
-  #root::before {
-    content: '';
-    position: fixed;
-    /* Extend background into safe area by using negative offsets */
-    top: calc(0px - env(safe-area-inset-top));
-    left: calc(0px - env(safe-area-inset-left));
-    right: calc(0px - env(safe-area-inset-right));
-    bottom: calc(0px - env(safe-area-inset-bottom));
-    background: linear-gradient(to bottom right, #0f172a, #581c87, #0f172a);
-    z-index: -1;
-    pointer-events: none;
   }
 
   /* Allow text selection in input fields and text areas */
