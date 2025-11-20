@@ -103,11 +103,11 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
               }
             );
           } else {
-            // Fallback: use decodeFromVideoDevice with null/undefined for default camera
+            // Fallback: use decodeFromVideoDevice with null for default camera
             // This should work when device enumeration fails
             try {
               codeReader.decodeFromVideoDevice(
-                undefined,
+                null,
                 videoRef.current,
                 (result, error) => {
                   if (!isMounted) return;
